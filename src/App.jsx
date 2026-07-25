@@ -203,6 +203,51 @@ function ReviewsPage() {
   );
 }
 
+function NowPage() {
+  return (
+    <section className="page now-page">
+      <article className="now-content">
+        <h1>What I’m Doing Now</h1>
+        <p>
+          <em>
+            This is a{" "}
+            <a href="https://nownownow.com/about" target="_blank" rel="noreferrer">
+              now page
+            </a>
+            , inspired by Derek Sivers.
+          </em>
+        </p>
+        <p>Currently in: 🇵🇹 Portugal</p>
+
+        <h3>Building Screvi</h3>
+        <p>Most of my time goes into Screvi.</p>
+        <p>
+          I’m building it to be the best way to collect, organize, and actually
+          remember your book, article and social media highlights.
+        </p>
+        <p>
+          If you read a lot or spend a lot of time on the internet, maybe it
+          could be useful to you,{" "}
+          <a href="https://screvi.com/?ref=araujo.zip" target="_blank" rel="noreferrer">
+            give it a try
+          </a>
+          .
+        </p>
+
+        <h3>Training</h3>
+        <p>
+          This year, I’m focusing on speed, mobility, endurance, and strength.
+          Check out my <a href="#training">Training</a> and{" "}
+          <a href="#home">2026 Goals</a>.
+        </p>
+
+        <hr />
+        <p><em>Last updated: March 2026</em></p>
+      </article>
+    </section>
+  );
+}
+
 function PlaceholderPage({ title }) {
   return (
     <section className="page placeholder-page">
@@ -250,10 +295,11 @@ export default function App() {
 
       <main>
         {activePage === "home" && <HomePage navigate={navigate} />}
+        {activePage === "now" && <NowPage />}
         {activePage === "posters" && <PostersPage />}
         {activePage === "projects" && <ProjectsPage />}
         {activePage === "reviews" && <ReviewsPage />}
-        {!["home", "posters", "projects", "reviews"].includes(activePage) && (
+        {!["home", "now", "posters", "projects", "reviews"].includes(activePage) && (
           <PlaceholderPage title={pages.find(([id]) => id === activePage)?.[1] ?? "Page"} />
         )}
       </main>

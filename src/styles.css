@@ -387,6 +387,51 @@ h1 {
 
 /* Remaining pages */
 .content-section { padding-top: 76px; padding-bottom: 80px; }
+.now-page {
+  padding-top: 64px;
+  padding-bottom: 64px;
+}
+.now-content {
+  max-width: 512px;
+}
+.now-content h1 {
+  margin: 0 0 8px;
+  color: #d4d4d4;
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -.025em;
+  line-height: 1.2;
+}
+.now-content h3 {
+  margin: 40px 0 8px;
+  color: #d4d4d4;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.now-content p {
+  max-width: 512px;
+  margin: 0 0 16px;
+  color: #9b9b9b;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.now-content em {
+  color: #9b9b9b;
+  font-size: 12px;
+}
+.now-content a {
+  color: #9b9b9b;
+  text-decoration: underline;
+}
+.now-content a:hover {
+  color: #d4d4d4;
+}
+.now-content hr {
+  margin: 40px 0 16px;
+  border: 0;
+  border-top: 1px solid #303030;
+}
 .placeholder-page { padding-top: 76px; }
 .placeholder-page h2 {
   margin: 0;
