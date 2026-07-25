@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { books, goals, posters, profile, projects, quests, reviews, updates } from "./content";
 import GlobeCard from "./GlobeCard";
 import TravelMap from "./TravelMap";
+import TrainingPage from "./TrainingPage";
 
 const pages = [
   ["home", "Home"],
@@ -298,10 +299,11 @@ export default function App() {
         {activePage === "home" && <HomePage navigate={navigate} />}
         {activePage === "now" && <NowPage />}
         {activePage === "map" && <TravelMap />}
+        {activePage === "training" && <TrainingPage />}
         {activePage === "posters" && <PostersPage />}
         {activePage === "projects" && <ProjectsPage />}
         {activePage === "reviews" && <ReviewsPage />}
-        {!["home", "now", "map", "posters", "projects", "reviews"].includes(activePage) && (
+        {!["home", "now", "map", "training", "posters", "projects", "reviews"].includes(activePage) && (
           <PlaceholderPage title={pages.find(([id]) => id === activePage)?.[1] ?? "Page"} />
         )}
       </main>

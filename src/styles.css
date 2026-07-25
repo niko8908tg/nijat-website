@@ -514,6 +514,20 @@ h1 {
   background: #303030;
 }
 .placeholder-page { padding-top: 76px; }
+.training-page {
+  width: 100%;
+  max-width: 1260px;
+  margin: 0 auto;
+  padding: 0;
+}
+.training-reference-frame {
+  display: block;
+  width: 100%;
+  min-height: 900px;
+  border: 0;
+  background: transparent;
+  overflow: hidden;
+}
 .placeholder-page h2 {
   margin: 0;
   color: #d1d1d1;
@@ -633,6 +647,7 @@ h1 {
   main { margin-left: 0; }
   .page { padding-left: 22px; padding-right: 22px; }
   .home-page { padding-top: 88px; }
+  .training-page { padding: 0; }
   .home-columns { grid-template-columns: 1fr; }
 }
 
