@@ -40,8 +40,8 @@ button { border: 0; }
   content: "";
   position: absolute;
   z-index: 21;
-  top: 45px;
-  bottom: 45px;
+  top: 32px;
+  bottom: 32px;
   left: 239px;
   width: 1px;
   background: #292929;
