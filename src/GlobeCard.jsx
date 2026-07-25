@@ -7,30 +7,31 @@ const ISTANBUL = [41.0082, 28.9784];
 export default function GlobeCard() {
   const viewportRef = useRef(null);
   const canvasRef = useRef(null);
-  const frameRef = useRef(0);
-  const dragging = useRef(false);
-  const pointer = useRef({ x: 0, y: 0 });
-  // Center the opening view between Baku and Istanbul.
-  const rotation = useRef({ phi: -2.25, theta: 0.25 });
-  const size = useRef(430);
 
   useEffect(() => {
     const viewport = viewportRef.current;
     const canvas = canvasRef.current;
     if (!viewport || !canvas) return undefined;
 
+    let width = 0;
+    let phi = -2.25;
+    let theta = 0.25;
+    let animationId = 0;
+    let isDragging = false;
+    let previousX = 0;
+    let previousY = 0;
+
     const resize = () => {
-      size.current = viewport.getBoundingClientRect().width;
+      width = viewport.offsetWidth;
     };
     resize();
 
-    const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
     const globe = createGlobe(canvas, {
-      devicePixelRatio: pixelRatio,
-      width: size.current,
-      height: size.current,
-      phi: rotation.current.phi,
-      theta: rotation.current.theta,
+      devicePixelRatio: 2,
+      width: width * 2,
+      height: width * 2,
+      phi,
+      theta,
       dark: 1,
       diffuse: 1.7,
       mapSamples: 16000,
@@ -63,59 +64,61 @@ export default function GlobeCard() {
       arcHeight: 0.24,
     });
 
-    const render = () => {
-      if (!dragging.current) rotation.current.phi += 0.004;
-      globe.update({
-        phi: rotation.current.phi,
-        theta: rotation.current.theta,
-        width: size.current * pixelRatio,
-        height: size.current * pixelRatio,
-      });
-      frameRef.current = requestAnimationFrame(render);
-    };
-    frameRef.current = requestAnimationFrame(render);
-
-    const observer = new ResizeObserver(resize);
-    observer.observe(viewport);
-
-    const startDrag = (event) => {
-      dragging.current = true;
-      pointer.current = { x: event.clientX, y: event.clientY };
+    const onPointerDown = (event) => {
+      isDragging = true;
+      previousX = event.clientX;
+      previousY = event.clientY;
       canvas.setPointerCapture(event.pointerId);
       canvas.style.cursor = "grabbing";
     };
-    const moveGlobe = (event) => {
-      if (!dragging.current) return;
-      rotation.current.phi += (event.clientX - pointer.current.x) * 0.005;
-      rotation.current.theta = Math.max(
+
+    const onPointerMove = (event) => {
+      if (!isDragging) return;
+      phi += (event.clientX - previousX) * 0.005;
+      theta = Math.max(
         -Math.PI / 3,
-        Math.min(
-          Math.PI / 3,
-          rotation.current.theta + (event.clientY - pointer.current.y) * 0.005
-        )
+        Math.min(Math.PI / 3, theta + (event.clientY - previousY) * 0.005)
       );
-      pointer.current = { x: event.clientX, y: event.clientY };
+      previousX = event.clientX;
+      previousY = event.clientY;
     };
-    const stopDrag = (event) => {
-      dragging.current = false;
+
+    const onPointerUp = (event) => {
+      if (!isDragging) return;
+      isDragging = false;
       if (canvas.hasPointerCapture(event.pointerId)) {
         canvas.releasePointerCapture(event.pointerId);
       }
       canvas.style.cursor = "grab";
     };
 
-    canvas.addEventListener("pointerdown", startDrag);
-    canvas.addEventListener("pointermove", moveGlobe);
-    canvas.addEventListener("pointerup", stopDrag);
-    canvas.addEventListener("pointercancel", stopDrag);
+    canvas.addEventListener("pointerdown", onPointerDown);
+    canvas.addEventListener("pointermove", onPointerMove);
+    canvas.addEventListener("pointerup", onPointerUp);
+    canvas.addEventListener("pointercancel", onPointerUp);
+
+    const render = () => {
+      if (!isDragging) phi += 0.004;
+      globe.update({
+        phi,
+        theta,
+        width: width * 2,
+        height: width * 2,
+      });
+      animationId = requestAnimationFrame(render);
+    };
+    render();
+
+    const observer = new ResizeObserver(resize);
+    observer.observe(viewport);
 
     return () => {
-      cancelAnimationFrame(frameRef.current);
+      cancelAnimationFrame(animationId);
       observer.disconnect();
-      canvas.removeEventListener("pointerdown", startDrag);
-      canvas.removeEventListener("pointermove", moveGlobe);
-      canvas.removeEventListener("pointerup", stopDrag);
-      canvas.removeEventListener("pointercancel", stopDrag);
+      canvas.removeEventListener("pointerdown", onPointerDown);
+      canvas.removeEventListener("pointermove", onPointerMove);
+      canvas.removeEventListener("pointerup", onPointerUp);
+      canvas.removeEventListener("pointercancel", onPointerUp);
       globe.destroy();
     };
   }, []);
