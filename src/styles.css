@@ -432,6 +432,84 @@ h1 {
   border: 0;
   border-top: 1px solid #303030;
 }
+.travel-map-page {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 620px;
+  overflow: hidden;
+  background: var(--bg);
+}
+.travel-map-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.map-tooltip {
+  position: fixed;
+  z-index: 50;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: #d4d4d4;
+  color: #191919;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  pointer-events: none;
+}
+.map-tooltip span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+}
+.map-stats-wrap {
+  position: absolute;
+  right: 0;
+  bottom: 32px;
+  left: 0;
+  padding: 0 24px;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+.map-stats {
+  padding: 16px 20px;
+  border: 1px solid #303030;
+  border-radius: 8px;
+  background: rgba(25, 25, 25, .82);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.map-stats > div {
+  display: grid;
+  gap: 1px;
+}
+.map-stats strong {
+  color: #d4d4d4;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+}
+.map-stats .map-total {
+  color: #777;
+}
+.map-stats span {
+  color: #999;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.map-stats i {
+  width: 1px;
+  height: 32px;
+  background: #303030;
+}
 .placeholder-page { padding-top: 76px; }
 .placeholder-page h2 {
   margin: 0;

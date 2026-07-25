@@ -10,8 +10,11 @@
   },
   "dependencies": {
     "cobe": "^2.0.1",
+    "prop-types": "^15.8.1",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "react-simple-maps": "^3.0.0",
+    "world-atlas": "^2.0.2"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^5.0.4",
