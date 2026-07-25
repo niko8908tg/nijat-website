@@ -35,7 +35,7 @@ export default function GlobeCard() {
       markerColor: [1, 0.82, 0.35],
       glowColor: [0.3, 0.3, 0.29],
       opacity: 1,
-      scale: 0.92,
+      scale: 0.6,
       markers: [{ location: BAKU, size: 0.085 }],
       onRender: (state) => {
         state.phi = rotation.current.phi;

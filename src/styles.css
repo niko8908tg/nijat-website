@@ -305,8 +305,8 @@ h1 {
 .globe-canvas:active { cursor: grabbing; }
 .globe-location {
   position: absolute;
-  top: 112px;
-  left: calc(50% - 82px);
+  top: 126px;
+  left: calc(50% - 72px);
   width: 92px;
   height: 86px;
   pointer-events: none;
