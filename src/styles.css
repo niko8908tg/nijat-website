@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap");
 
 :root {
   --bg: #191919;
@@ -9,6 +9,7 @@
   --border: #303030;
   --hover: #242424;
   font-family: "Space Grotesk", Arial, sans-serif;
+  font-weight: 300;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
@@ -24,6 +25,7 @@ body {
   background-size: 24px 24px;
   color: var(--text);
   font-family: "Space Grotesk", Arial, sans-serif;
+  font-weight: 300;
   -webkit-font-smoothing: antialiased;
 }
 button, input, textarea, select, a { color: inherit; font: inherit; }
@@ -57,12 +59,12 @@ button { border: 0; }
   color: #777b82;
   font-size: 18px;
   font-style: italic;
-  font-weight: 400;
+  font-weight: 300;
   cursor: pointer;
   transition: color .2s ease, transform .2s ease;
 }
 .nav-link:hover { color: #bbb; transform: translateX(3px); }
-.nav-link.active { color: #dedede; }
+.nav-link.active { color: #dedede; font-weight: 500; }
 .nav-link.active::before {
   content: "";
   position: absolute;
@@ -100,7 +102,7 @@ h1 {
   margin: 0 0 28px;
   color: #d5d5d5;
   font-size: 36px;
-  font-weight: 650;
+  font-weight: 700;
   letter-spacing: -.045em;
   line-height: 1;
 }
@@ -137,7 +139,7 @@ h1 {
   margin: 0 0 28px;
   color: #929292;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: .1em;
   text-transform: uppercase;
 }
