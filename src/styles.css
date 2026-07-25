@@ -432,6 +432,66 @@ h1 {
   border: 0;
   border-top: 1px solid #303030;
 }
+.stuff-page {
+  padding-top: 64px;
+  padding-bottom: 80px;
+}
+.stuff-content {
+  width: 100%;
+  max-width: 896px;
+  margin: 0 auto;
+}
+.stuff-heading {
+  margin-bottom: 48px;
+}
+.stuff-heading h1 {
+  margin: 0 0 8px;
+  color: #d4d4d4;
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -.025em;
+  line-height: 1.2;
+}
+.stuff-heading p {
+  margin: 0;
+  color: #9b9b9b;
+  font-size: 16px;
+  line-height: 1.6;
+}
+.stuff-links {
+  display: grid;
+  gap: 4px;
+}
+.stuff-row {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 0;
+  background: transparent;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 16px;
+  color: #9b9b9b;
+  text-align: left;
+  cursor: pointer;
+}
+.stuff-row strong {
+  color: #d4d4d4;
+  font-size: 14px;
+  font-weight: 600;
+  transition: color .15s ease;
+}
+.stuff-row > span:last-child {
+  font-size: 12px;
+}
+.stuff-dot-line {
+  min-width: 24px;
+  border-bottom: 1px dotted #303030;
+  transform: translateY(-3px);
+}
+.stuff-row:hover strong {
+  color: #9b9b9b;
+}
 .travel-map-page {
   position: relative;
   width: 100%;
@@ -662,6 +722,11 @@ h1 {
   .book img { width: 76px; height: 114px; }
   .goal-list span { font-size: 14px; }
   .section-heading { display: block; }
+  .stuff-row {
+    grid-template-columns: 1fr;
+    gap: 1px;
+  }
+  .stuff-dot-line { display: none; }
   .section-heading > p:last-child { margin-top: 22px; }
   .poster-grid { grid-template-columns: 1fr; }
   .project-row { grid-template-columns: 30px 1fr; gap: 14px; }

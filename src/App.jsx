@@ -250,6 +250,41 @@ function NowPage() {
   );
 }
 
+const stuffLinks = [
+  ["reviews", "Books", "What I’ve been reading"],
+  ["stuff", "Gaming", "Video games that left a mark"],
+  ["tools", "Tools", "Hardware and gear I use daily"],
+  ["home", "2026 Goals", "What I want to accomplish this year"],
+];
+
+function StuffPage({ navigate }) {
+  return (
+    <section className="page stuff-page">
+      <div className="stuff-content">
+        <header className="stuff-heading">
+          <h1>Stuff</h1>
+          <p>Other things I’m into.</p>
+        </header>
+
+        <div className="stuff-links">
+          {stuffLinks.map(([page, title, description]) => (
+            <button
+              className="stuff-row"
+              key={title}
+              onClick={() => navigate(page)}
+              type="button"
+            >
+              <strong>{title}</strong>
+              <span className="stuff-dot-line" aria-hidden="true" />
+              <span>{description}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function PlaceholderPage({ title }) {
   return (
     <section className="page placeholder-page">
@@ -300,10 +335,11 @@ export default function App() {
         {activePage === "now" && <NowPage />}
         {activePage === "map" && <TravelMap />}
         {activePage === "training" && <TrainingPage />}
+        {activePage === "stuff" && <StuffPage navigate={navigate} />}
         {activePage === "posters" && <PostersPage />}
         {activePage === "projects" && <ProjectsPage />}
         {activePage === "reviews" && <ReviewsPage />}
-        {!["home", "now", "map", "training", "posters", "projects", "reviews"].includes(activePage) && (
+        {!["home", "now", "map", "training", "stuff", "posters", "projects", "reviews"].includes(activePage) && (
           <PlaceholderPage title={pages.find(([id]) => id === activePage)?.[1] ?? "Page"} />
         )}
       </main>
