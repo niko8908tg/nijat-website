@@ -1,11 +1,9 @@
 export const profile = {
   name: "Nicat Mahmud",
-  eyebrow: "Independent designer & researcher",
-  intro:
-    "I collect ideas, make visual experiments, and work on projects where design, research, and culture meet.",
-  secondary:
-    "This is a growing archive of selected work, workshops, posters, and reading notes.",
-  location: "Based in Baku · Working everywhere",
+  intro: "This is where I share what I’ve been working on and what I’ve learned.",
+  secondary: "Start with my projects, or take a look at my literature notes.",
+  current: "Currently building a personal archive.",
+  location: "Baku, Azerbaijan",
   email: "hello@example.com",
 };
 
@@ -13,6 +11,29 @@ export const updates = [
   { title: "Notes on building a personal visual archive", date: "Jul 18, 2026" },
   { title: "A small workshop about images and memory", date: "Jun 02, 2026" },
   { title: "Three posters from an unfinished series", date: "May 14, 2026" },
+];
+
+export const books = [
+  { title: "What I Talk About When I Talk About Running", cover: "/books/2195464._SY400_.jpg" },
+  { title: "Sharpe’s Rifles", cover: "/books/360562._SY400_.jpg" },
+  { title: "Four Thousand Weeks", cover: "/books/54785515._SY400_.jpg" },
+  { title: "Around the World in Eighty Days", cover: "/books/54479._SY400_.jpg" },
+  { title: "Lonesome Dove", cover: "/books/256008._SY400_.jpg" },
+];
+
+export const goals = [
+  "Publish a visual essay",
+  "Host a workshop",
+  "Read 24 books",
+  "Finish the archive",
+  "Start a poster series",
+];
+
+export const quests = [
+  { title: "Launch the first version of this website", date: "2026" },
+  { title: "Complete an independent research project", date: "2025" },
+  { title: "Organize a collaborative workshop", date: "2025" },
+  { title: "Create a twelve-poster collection", date: "2024" },
 ];
 
 export const projects = [
@@ -49,5 +70,5 @@ export const posters = [
 export const reviews = [
   { title: "Ways of Seeing", author: "John Berger", note: "Image, context, and power." },
   { title: "The Practice of Everyday Life", author: "Michel de Certeau", note: "A note on ordinary gestures." },
-  { title: "In Praise of Shadows", author: "Jun'ichirō Tanizaki", note: "Light, material, and atmosphere." },
+  { title: "In Praise of Shadows", author: "Jun’ichirō Tanizaki", note: "Light, material, and atmosphere." },
 ];

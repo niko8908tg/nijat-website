@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { posters, profile, projects, reviews, updates } from "./content";
+import { books, goals, posters, profile, projects, quests, reviews, updates } from "./content";
 
 const navigation = [
   ["home", "Home"],
@@ -64,29 +64,83 @@ export default function Home() {
       {menuOpen && <button className="backdrop" aria-label="Close menu" onClick={() => setMenuOpen(false)} />}
 
       <main>
-        <section id="home" className="hero section">
-          <p className="eyebrow">{profile.eyebrow}</p>
-          <h1>{profile.name}</h1>
-          <div className="intro">
-            <p>{profile.intro}</p>
-            <p>{profile.secondary}</p>
-          </div>
-          <div className="contact-row">
-            <a href={`mailto:${profile.email}`}>{profile.email}</a>
-            <span>{profile.location}</span>
+        <section id="home" className="home-page section">
+          <div className="home-intro">
+            <h1>{profile.name}</h1>
+            <div className="intro-copy">
+              <p>{profile.intro}</p>
+              <p>{profile.secondary}</p>
+              <p>{profile.current}</p>
+            </div>
+            <div className="contact-row">
+              <a href="#social">X</a>
+              <a href="#social">Instagram</a>
+              <a href="#social">LinkedIn</a>
+              <span className="separator">·</span>
+              <a href={`mailto:${profile.email}`}>{profile.email}</a>
+              <a href={`mailto:${profile.email}`}>Send a message</a>
+            </div>
           </div>
 
-          <div className="updates">
+          <section className="home-block updates">
             <p className="section-label">Recently updated</p>
             {updates.map((item) => (
-              <a href="#projects" className="update-row" key={item.title}>
+              <button className="update-row" onClick={() => goTo("projects")} key={item.title}>
                 <strong>{item.title}</strong>
                 <span className="dot-line" />
                 <time>{item.date}</time>
-              </a>
+              </button>
             ))}
+            <button className="text-link" onClick={() => goTo("projects")}>All posts →</button>
+          </section>
+
+          <div className="home-columns home-block">
+            <section className="training">
+              <p className="section-label">Latest activity</p>
+              <div className="activity-card">
+                <span className="activity-icon" aria-hidden="true">✦</span>
+                <div>
+                  <strong>Current project <em>02</em></strong>
+                  <p>Sat, Jul 25 · Visual research · Ongoing</p>
+                </div>
+                <span className="activity-arrow">→</span>
+              </div>
+            </section>
+
+            <section className="reading">
+              <p className="section-label">2026 reading</p>
+              <div className="book-strip">
+                {books.map((book) => (
+                  <article className="book" key={book.title}>
+                    <img src={book.cover} alt="" />
+                    <p>{book.title}</p>
+                  </article>
+                ))}
+              </div>
+              <button className="text-link" onClick={() => goTo("reviews")}>All books →</button>
+            </section>
           </div>
-          <button className="text-link" onClick={() => goTo("projects")}>See selected work →</button>
+
+          <section className="home-block goals">
+            <p className="section-label">2026 goals</p>
+            <div className="goal-list">
+              {goals.map((goal) => <span key={goal}>{goal}</span>)}
+            </div>
+            <a className="muted-link" href="#quests">View all goals →</a>
+          </section>
+
+          <section id="quests" className="home-block quests">
+            <p className="section-label">Completed side quests</p>
+            <div className="quest-list">
+              {quests.map((quest) => (
+                <div className="quest" key={quest.title}>
+                  <span className="check">✓</span>
+                  <span>{quest.title}</span>
+                  <time>{quest.date}</time>
+                </div>
+              ))}
+            </div>
+          </section>
         </section>
 
         <section id="posters" className="section content-section">
