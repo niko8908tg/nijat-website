@@ -487,7 +487,10 @@ h1 {
 }
 .map-stats > div {
   display: grid;
+  min-width: 62px;
   gap: 1px;
+  justify-items: center;
+  text-align: center;
 }
 .map-stats strong {
   color: #d4d4d4;
