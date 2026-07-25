@@ -9,9 +9,8 @@ export default function GlobeCard() {
   const canvasRef = useRef(null);
   const frameRef = useRef(0);
   const dragging = useRef(false);
-  const lastInteraction = useRef(0);
   const pointer = useRef({ x: 0, y: 0 });
-  const rotation = useRef({ phi: 1.48, theta: -0.17 });
+  const rotation = useRef({ phi: 0, theta: 0.25 });
   const size = useRef(430);
 
   useEffect(() => {
@@ -64,12 +63,7 @@ export default function GlobeCard() {
     });
 
     const render = () => {
-      if (
-        !dragging.current &&
-        performance.now() - lastInteraction.current > 900
-      ) {
-        rotation.current.phi += 0.0022;
-      }
+      if (!dragging.current) rotation.current.phi += 0.004;
       const renderSize = size.current * pixelRatio;
       globe.update({
         phi: rotation.current.phi,
@@ -84,40 +78,47 @@ export default function GlobeCard() {
     const observer = new ResizeObserver(resize);
     observer.observe(viewport);
 
+    const startDrag = (event) => {
+      dragging.current = true;
+      pointer.current = { x: event.clientX, y: event.clientY };
+      canvas.setPointerCapture(event.pointerId);
+      canvas.style.cursor = "grabbing";
+    };
+    const moveGlobe = (event) => {
+      if (!dragging.current) return;
+      rotation.current.phi += (event.clientX - pointer.current.x) * 0.005;
+      rotation.current.theta = Math.max(
+        -Math.PI / 3,
+        Math.min(
+          Math.PI / 3,
+          rotation.current.theta + (event.clientY - pointer.current.y) * 0.005
+        )
+      );
+      pointer.current = { x: event.clientX, y: event.clientY };
+    };
+    const stopDrag = (event) => {
+      dragging.current = false;
+      if (canvas.hasPointerCapture(event.pointerId)) {
+        canvas.releasePointerCapture(event.pointerId);
+      }
+      canvas.style.cursor = "grab";
+    };
+
+    canvas.addEventListener("pointerdown", startDrag);
+    canvas.addEventListener("pointermove", moveGlobe);
+    canvas.addEventListener("pointerup", stopDrag);
+    canvas.addEventListener("pointercancel", stopDrag);
+
     return () => {
       cancelAnimationFrame(frameRef.current);
       observer.disconnect();
+      canvas.removeEventListener("pointerdown", startDrag);
+      canvas.removeEventListener("pointermove", moveGlobe);
+      canvas.removeEventListener("pointerup", stopDrag);
+      canvas.removeEventListener("pointercancel", stopDrag);
       globe.destroy();
     };
   }, []);
-
-  const startDrag = (event) => {
-    dragging.current = true;
-    lastInteraction.current = performance.now();
-    pointer.current = { x: event.clientX, y: event.clientY };
-    event.currentTarget.setPointerCapture(event.pointerId);
-  };
-
-  const moveGlobe = (event) => {
-    if (!dragging.current) return;
-    lastInteraction.current = performance.now();
-    const deltaX = event.clientX - pointer.current.x;
-    const deltaY = event.clientY - pointer.current.y;
-    rotation.current.phi += deltaX / 180;
-    rotation.current.theta = Math.max(
-      -1.05,
-      Math.min(1.05, rotation.current.theta + deltaY / 260)
-    );
-    pointer.current = { x: event.clientX, y: event.clientY };
-  };
-
-  const stopDrag = (event) => {
-    dragging.current = false;
-    lastInteraction.current = performance.now();
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-  };
 
   return (
     <section className="globe-card" aria-labelledby="places-title">
@@ -126,10 +127,6 @@ export default function GlobeCard() {
           <canvas
             ref={canvasRef}
             className="globe-canvas"
-            onPointerDown={startDrag}
-            onPointerMove={moveGlobe}
-            onPointerUp={stopDrag}
-            onPointerCancel={stopDrag}
             aria-label="Baku ve İstanbul arasındaki rotayı gösteren etkileşimli küre"
           />
           <span className="globe-marker-label marker-baku">BAKU</span>
