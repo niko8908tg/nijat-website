@@ -1,5 +1,5 @@
 export const profile = {
-  name: "Nicat Mahmud",
+  name: "Nijat Mahmud",
   intro: "This is where I share what I’ve been working on and what I’ve learned.",
   secondary: "Start with my projects, or take a look at my literature notes.",
   current: "Currently building a personal archive.",
