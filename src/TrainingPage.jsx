@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import trainingReference from "../Training _ Pedro Araújo.html?raw";
 import trainingReferenceStyles from "../Training _ Pedro Araújo_files/_slug_.1PXzLZaY.css?raw";
+import trainingFontStyles from "../Training _ Pedro Araújo_files/css2?raw";
 
 const FRAME_MESSAGE = "nicat-training-frame-height";
 
@@ -21,6 +22,7 @@ function createTrainingDocument() {
 
   const frameStyles = `
     <style>
+      ${trainingFontStyles}
       ${trainingReferenceStyles}
 
       html.dark,
@@ -30,9 +32,21 @@ function createTrainingDocument() {
 
       html,
       body {
+        --font-mono: "Space Grotesk", sans-serif;
         min-width: 0 !important;
         overflow-x: hidden !important;
         scrollbar-width: none;
+      }
+
+      .font-mono {
+        font-family: "Space Grotesk", sans-serif !important;
+        font-weight: 500;
+      }
+
+      .font-bold,
+      .font-semibold {
+        font-family: "Space Grotesk", sans-serif !important;
+        font-weight: 700 !important;
       }
 
       body::-webkit-scrollbar {
@@ -74,6 +88,43 @@ function createTrainingDocument() {
 
         new ResizeObserver(reportHeight).observe(pageRoot);
         window.addEventListener("resize", reportHeight);
+
+        window.addEventListener(
+          "wheel",
+          (event) => {
+            window.parent.scrollBy({
+              top: event.deltaY,
+              left: event.deltaX,
+              behavior: "auto"
+            });
+            event.preventDefault();
+          },
+          { passive: false }
+        );
+
+        let previousTouchY = null;
+        window.addEventListener(
+          "touchstart",
+          (event) => {
+            previousTouchY = event.touches[0]?.clientY ?? null;
+          },
+          { passive: true }
+        );
+        window.addEventListener(
+          "touchmove",
+          (event) => {
+            const currentTouchY = event.touches[0]?.clientY;
+            if (previousTouchY === null || currentTouchY === undefined) return;
+            window.parent.scrollBy(0, previousTouchY - currentTouchY);
+            previousTouchY = currentTouchY;
+            event.preventDefault();
+          },
+          { passive: false }
+        );
+        window.addEventListener("touchend", () => {
+          previousTouchY = null;
+        });
+
         window.setTimeout(reportHeight, 0);
         window.setTimeout(reportHeight, 250);
         window.setTimeout(reportHeight, 1200);
