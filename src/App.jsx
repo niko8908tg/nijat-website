@@ -49,6 +49,7 @@ function HomePage({ navigate }) {
   return (
     <section className="home-page page">
       <div className="home-intro">
+        <img className="home-hero-logo" src={brandLogo} alt="" aria-hidden="true" />
         <h1>{profile.name}</h1>
         <div className="intro-copy">
           <p>{profile.intro}</p>
