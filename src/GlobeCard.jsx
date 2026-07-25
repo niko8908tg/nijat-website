@@ -68,18 +68,14 @@ export default function GlobeCard() {
       globe.update({
         phi: rotation.current.phi,
         theta: rotation.current.theta,
+        width: size.current * pixelRatio,
+        height: size.current * pixelRatio,
       });
       frameRef.current = requestAnimationFrame(render);
     };
     frameRef.current = requestAnimationFrame(render);
 
-    const observer = new ResizeObserver(() => {
-      resize();
-      globe.update({
-        width: size.current,
-        height: size.current,
-      });
-    });
+    const observer = new ResizeObserver(resize);
     observer.observe(viewport);
 
     const startDrag = (event) => {
