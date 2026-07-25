@@ -9,6 +9,7 @@ export default function GlobeCard() {
   const canvasRef = useRef(null);
   const frameRef = useRef(0);
   const dragging = useRef(false);
+  const lastInteraction = useRef(0);
   const pointer = useRef({ x: 0, y: 0 });
   const rotation = useRef({ phi: 1.48, theta: -0.17 });
   const size = useRef(430);
@@ -63,6 +64,12 @@ export default function GlobeCard() {
     });
 
     const render = () => {
+      if (
+        !dragging.current &&
+        performance.now() - lastInteraction.current > 900
+      ) {
+        rotation.current.phi += 0.0022;
+      }
       const renderSize = size.current * pixelRatio;
       globe.update({
         phi: rotation.current.phi,
@@ -86,12 +93,14 @@ export default function GlobeCard() {
 
   const startDrag = (event) => {
     dragging.current = true;
+    lastInteraction.current = performance.now();
     pointer.current = { x: event.clientX, y: event.clientY };
     event.currentTarget.setPointerCapture(event.pointerId);
   };
 
   const moveGlobe = (event) => {
     if (!dragging.current) return;
+    lastInteraction.current = performance.now();
     const deltaX = event.clientX - pointer.current.x;
     const deltaY = event.clientY - pointer.current.y;
     rotation.current.phi += deltaX / 180;
@@ -104,6 +113,7 @@ export default function GlobeCard() {
 
   const stopDrag = (event) => {
     dragging.current = false;
+    lastInteraction.current = performance.now();
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
