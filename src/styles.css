@@ -310,7 +310,7 @@ h1 {
 }
 .globe-canvas:active { cursor: grabbing; }
 .globe-current-label {
-  margin: 0 0 18px;
+  margin: 0 0 28px;
   color: #929292;
   font-size: 12px;
   font-weight: 600;
