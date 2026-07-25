@@ -3,6 +3,7 @@ import { books, goals, posters, profile, projects, quests, reviews, updates } fr
 import GlobeCard from "./GlobeCard";
 import TravelMap from "./TravelMap";
 import TrainingPage from "./TrainingPage";
+import brandLogo from "./assets/nm-logo.png";
 
 const pages = [
   ["home", "Home"],
@@ -316,7 +317,10 @@ export default function App() {
     <div className="site-shell">
       <aside className={menuOpen ? "sidebar is-open" : "sidebar"}>
         <button className="mobile-close" onClick={() => setMenuOpen(false)} aria-label="Close menu">Close</button>
-        <div className="monogram" aria-hidden="true">NM</div>
+        <div className="monogram" aria-label="Nijat Mahmud">
+          <img src={brandLogo} alt="" />
+          <span>NM</span>
+        </div>
         <nav aria-label="Main navigation">
           {pages.map(([id, label]) => (
             <button key={id} className={activePage === id ? "nav-link active" : "nav-link"} onClick={() => navigate(id)}>
