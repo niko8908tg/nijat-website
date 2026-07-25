@@ -6,9 +6,70 @@ const ISTANBUL = [41.0082, 28.9784];
 
 export default function GlobeCard() {
   const canvasRef = useRef(null);
+  const routeRef = useRef(null);
+  const routePathRef = useRef(null);
+  const bakuLabelRef = useRef(null);
+  const istanbulLabelRef = useRef(null);
   const dragging = useRef(false);
   const pointer = useRef({ x: 0, y: 0 });
   const rotation = useRef({ phi: 1.5, theta: -0.18 });
+
+  const projectLocation = ([latitude, longitude], phi, theta) => {
+    const lat = (latitude * Math.PI) / 180;
+    const lng = (longitude * Math.PI) / 180 - Math.PI;
+    const cosLat = Math.cos(lat);
+    const point = [
+      -cosLat * Math.cos(lng),
+      Math.sin(lat),
+      cosLat * Math.sin(lng),
+    ];
+    const cosTheta = Math.cos(theta);
+    const sinTheta = Math.sin(theta);
+    const cosPhi = Math.cos(phi);
+    const sinPhi = Math.sin(phi);
+
+    const x = point[0] * cosPhi + point[2] * sinPhi;
+    const y =
+      point[0] * sinPhi * sinTheta +
+      point[1] * cosTheta -
+      point[2] * cosPhi * sinTheta;
+    const z =
+      -point[0] * sinPhi * cosTheta +
+      point[1] * sinTheta +
+      point[2] * cosPhi * cosTheta;
+
+    return {
+      x: 215 + x * 172,
+      y: 215 - y * 172,
+      visible: z > 0,
+    };
+  };
+
+  const updateRoute = (phi, theta) => {
+    const baku = projectLocation(BAKU, phi, theta);
+    const istanbul = projectLocation(ISTANBUL, phi, theta);
+    const visible = baku.visible && istanbul.visible;
+
+    if (routeRef.current) routeRef.current.style.opacity = visible ? "1" : "0";
+    if (!visible) return;
+
+    const lift = Math.max(38, Math.abs(istanbul.x - baku.x) * 0.3);
+    const middleX = (baku.x + istanbul.x) / 2;
+    const middleY = Math.min(baku.y, istanbul.y) - lift;
+
+    routePathRef.current?.setAttribute(
+      "d",
+      `M ${baku.x} ${baku.y} Q ${middleX} ${middleY} ${istanbul.x} ${istanbul.y}`
+    );
+    if (bakuLabelRef.current) {
+      bakuLabelRef.current.style.transform =
+        `translate(${baku.x - 58}px, ${baku.y - 46}px)`;
+    }
+    if (istanbulLabelRef.current) {
+      istanbulLabelRef.current.style.transform =
+        `translate(${istanbul.x + 10}px, ${istanbul.y - 46}px)`;
+    }
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -46,6 +107,7 @@ export default function GlobeCard() {
         state.theta = rotation.current.theta;
         state.width = size;
         state.height = size;
+        updateRoute(state.phi, state.theta);
       },
     });
 
@@ -92,14 +154,12 @@ export default function GlobeCard() {
           onPointerCancel={stopDrag}
           aria-label="Interactive globe showing Baku, Azerbaijan"
         />
-        <div className="globe-route" aria-hidden="true">
-          <svg viewBox="0 0 430 190">
-            <path d="M116 106 C164 28 272 25 324 92" />
-            <circle cx="116" cy="106" r="3" />
-            <circle className="active-point" cx="324" cy="92" r="4" />
+        <div ref={routeRef} className="globe-route" aria-hidden="true">
+          <svg viewBox="0 0 430 430">
+            <path ref={routePathRef} d="" />
           </svg>
-          <span className="route-label route-baku">BAKU</span>
-          <span className="route-label route-istanbul">ISTANBUL</span>
+          <span ref={bakuLabelRef} className="route-label route-baku">BAKU</span>
+          <span ref={istanbulLabelRef} className="route-label route-istanbul">ISTANBUL</span>
         </div>
         <p className="globe-hint">Drag to explore</p>
       </div>
