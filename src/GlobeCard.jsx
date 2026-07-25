@@ -47,7 +47,7 @@ export default function GlobeCard() {
         {
           id: "istanbul",
           location: ISTANBUL,
-          size: 0.085,
+          size: 0.055,
           color: [1, 0.76, 0.18],
         },
       ],
@@ -126,6 +126,7 @@ export default function GlobeCard() {
   return (
     <section className="globe-card" aria-labelledby="places-title">
       <div className="globe-stage">
+        <p className="globe-current-label">Current Location</p>
         <div ref={viewportRef} className="globe-viewport">
           <canvas
             ref={canvasRef}
@@ -138,7 +139,7 @@ export default function GlobeCard() {
         <p className="globe-hint">Drag to explore</p>
       </div>
       <footer className="globe-footer">
-        <span id="places-title">places</span>
+        <span id="places-title">Places</span>
         <span>Baku&nbsp; · &nbsp;<strong>Istanbul</strong></span>
       </footer>
     </section>

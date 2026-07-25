@@ -309,6 +309,18 @@ h1 {
   filter: contrast(1.04);
 }
 .globe-canvas:active { cursor: grabbing; }
+.globe-current-label {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  z-index: 2;
+  margin: 0;
+  color: #929292;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
 .globe-marker-label {
   position: absolute;
   pointer-events: none;
@@ -357,9 +369,10 @@ h1 {
   font-size: 12px;
 }
 .globe-footer span:first-child {
-  font-family: Georgia, serif;
-  font-size: 16px;
-  font-style: italic;
+  font-family: "Space Grotesk", Arial, sans-serif;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 300;
 }
 .globe-footer span:last-child {
   font-weight: 500;
