@@ -126,7 +126,6 @@ export default function GlobeCard() {
   return (
     <section className="globe-card" aria-labelledby="places-title">
       <div className="globe-stage">
-        <p className="globe-current-label">Current Location</p>
         <div ref={viewportRef} className="globe-viewport">
           <canvas
             ref={canvasRef}

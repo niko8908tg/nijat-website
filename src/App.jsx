@@ -125,6 +125,7 @@ function HomePage({ navigate }) {
       </section>
 
       <div className="home-block home-globe">
+        <p className="globe-current-label">Current Location</p>
         <GlobeCard />
       </div>
     </section>
