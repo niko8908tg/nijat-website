@@ -82,17 +82,15 @@ button { border: 0; }
 }
 .mobile-menu, .mobile-close, .backdrop { display: none; }
 main { margin-left: 220px; }
-.section {
+.page {
   min-height: 100vh;
   padding: 0 clamp(34px, 5vw, 72px);
-  border-bottom: 1px solid var(--border);
-  scroll-margin-top: 0;
 }
 
 /* Homepage — based on the supplied saved HTML */
 .home-page {
-  max-width: 1210px;
-  padding-top: 42px;
+  max-width: 1204px;
+  padding-top: 70px;
   padding-bottom: 74px;
 }
 .home-intro { max-width: 1060px; }
@@ -106,22 +104,33 @@ h1 {
 }
 .intro-copy {
   color: #999;
-  font-size: 20px;
-  line-height: 1.6;
+  font-size: 16px;
+  line-height: 1.55;
 }
-.intro-copy p { margin: 0 0 4px; }
+.intro-copy p { margin: 0 0 8px; }
 .intro-copy a { color: inherit; }
 .contact-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 9px 16px;
-  margin-top: 34px;
+  margin-top: 32px;
   color: #949494;
-  font-size: 16px;
+  font-size: 14px;
 }
+.contact-row a { display: inline-flex; align-items: center; gap: 6px; }
+.contact-row svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.contact-row svg .icon-fill { fill: currentColor; stroke: none; }
 .contact-row .separator { color: #444; }
-.home-block { margin-top: 78px; }
+.home-block { margin-top: 72px; }
 .section-label {
   margin: 0 0 28px;
   color: #929292;
@@ -144,7 +153,7 @@ h1 {
   text-align: left;
   cursor: pointer;
 }
-.update-row strong { font-size: 16px; font-weight: 600; }
+.update-row strong { font-size: 14px; font-weight: 600; }
 .update-row:hover strong { color: #eee; }
 .dot-line { height: 1px; border-bottom: 1px dotted #383838; }
 .update-row time { min-width: 100px; color: #909090; font-size: 14px; text-align: right; }
@@ -154,7 +163,7 @@ h1 {
   padding: 0;
   background: transparent;
   color: #959595;
-  font-size: 16px;
+  font-size: 14px;
   text-decoration: none;
   cursor: pointer;
 }
@@ -181,7 +190,7 @@ h1 {
   place-items: center;
   color: #aaa;
 }
-.activity-card strong { font-size: 16px; font-weight: 600; }
+.activity-card strong { font-size: 14px; font-weight: 600; }
 .activity-card strong em { color: #2cb896; font-style: normal; }
 .activity-card p { margin: 3px 0 0; color: #8d8d8d; font-size: 14px; }
 .activity-arrow { color: #9b9b9b; }
@@ -214,11 +223,11 @@ h1 {
 .goals { max-width: 1060px; }
 .goal-list { display: flex; flex-wrap: wrap; gap: 10px; }
 .goal-list span {
-  padding: 10px 14px;
+  padding: 8px 13px;
   border: 1px solid #353535;
   border-radius: 3px;
   color: #c6c6c6;
-  font-size: 17px;
+  font-size: 14px;
 }
 .quests {
   max-width: 1060px;
@@ -232,7 +241,7 @@ h1 {
   align-items: center;
   gap: 13px;
   color: #8e8e8e;
-  font-size: 15px;
+  font-size: 14px;
 }
 .quest > span:nth-child(2) { text-decoration: line-through; }
 .quest time { color: #8a8a8a; font-size: 13px; }
@@ -357,21 +366,21 @@ h1 {
   }
   .backdrop { display: block; position: fixed; inset: 0; z-index: 19; background: rgba(0,0,0,.55); }
   main { margin-left: 0; }
-  .section { padding-left: 22px; padding-right: 22px; }
+  .page { padding-left: 22px; padding-right: 22px; }
   .home-page { padding-top: 88px; }
   .home-columns { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 580px) {
   h1 { font-size: 46px; }
-  .intro-copy { font-size: 17px; }
+  .intro-copy { font-size: 16px; }
   .home-block { margin-top: 62px; }
   .update-row { grid-template-columns: 1fr auto; gap: 12px; padding: 8px 0; }
   .dot-line { display: none; }
   .update-row strong { line-height: 1.3; }
   .book { flex-basis: 76px; }
   .book img { width: 76px; height: 114px; }
-  .goal-list span { font-size: 15px; }
+  .goal-list span { font-size: 14px; }
   .section-heading { display: block; }
   .section-heading > p:last-child { margin-top: 22px; }
   .poster-grid { grid-template-columns: 1fr; }
