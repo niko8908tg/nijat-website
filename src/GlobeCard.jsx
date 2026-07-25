@@ -5,113 +5,80 @@ const BAKU = [40.4093, 49.8671];
 const ISTANBUL = [41.0082, 28.9784];
 
 export default function GlobeCard() {
+  const viewportRef = useRef(null);
   const canvasRef = useRef(null);
-  const routeRef = useRef(null);
-  const routePathRef = useRef(null);
-  const bakuLabelRef = useRef(null);
-  const istanbulLabelRef = useRef(null);
+  const frameRef = useRef(0);
   const dragging = useRef(false);
   const pointer = useRef({ x: 0, y: 0 });
-  const rotation = useRef({ phi: 1.5, theta: -0.18 });
-
-  const projectLocation = ([latitude, longitude], phi, theta) => {
-    const lat = (latitude * Math.PI) / 180;
-    const lng = (longitude * Math.PI) / 180 - Math.PI;
-    const cosLat = Math.cos(lat);
-    const point = [
-      -cosLat * Math.cos(lng),
-      Math.sin(lat),
-      cosLat * Math.sin(lng),
-    ];
-    const cosTheta = Math.cos(theta);
-    const sinTheta = Math.sin(theta);
-    const cosPhi = Math.cos(phi);
-    const sinPhi = Math.sin(phi);
-
-    const x = point[0] * cosPhi + point[2] * sinPhi;
-    const y =
-      point[0] * sinPhi * sinTheta +
-      point[1] * cosTheta -
-      point[2] * cosPhi * sinTheta;
-    const z =
-      -point[0] * sinPhi * cosTheta +
-      point[1] * sinTheta +
-      point[2] * cosPhi * cosTheta;
-
-    return {
-      x: 215 + x * 172,
-      y: 215 - y * 172,
-      visible: z > 0,
-    };
-  };
-
-  const updateRoute = (phi, theta) => {
-    const baku = projectLocation(BAKU, phi, theta);
-    const istanbul = projectLocation(ISTANBUL, phi, theta);
-    const visible = baku.visible && istanbul.visible;
-
-    if (routeRef.current) routeRef.current.style.opacity = visible ? "1" : "0";
-    if (!visible) return;
-
-    const lift = Math.max(38, Math.abs(istanbul.x - baku.x) * 0.3);
-    const middleX = (baku.x + istanbul.x) / 2;
-    const middleY = Math.min(baku.y, istanbul.y) - lift;
-
-    routePathRef.current?.setAttribute(
-      "d",
-      `M ${baku.x} ${baku.y} Q ${middleX} ${middleY} ${istanbul.x} ${istanbul.y}`
-    );
-    if (bakuLabelRef.current) {
-      bakuLabelRef.current.style.transform =
-        `translate(${baku.x - 58}px, ${baku.y - 46}px)`;
-    }
-    if (istanbulLabelRef.current) {
-      istanbulLabelRef.current.style.transform =
-        `translate(${istanbul.x + 10}px, ${istanbul.y - 46}px)`;
-    }
-  };
+  const rotation = useRef({ phi: 1.48, theta: -0.17 });
+  const size = useRef(430);
 
   useEffect(() => {
+    const viewport = viewportRef.current;
     const canvas = canvasRef.current;
-    if (!canvas) return undefined;
+    if (!viewport || !canvas) return undefined;
 
-    let size = canvas.offsetWidth;
-    const updateSize = () => {
-      size = canvas.offsetWidth;
+    const resize = () => {
+      size.current = viewport.getBoundingClientRect().width;
     };
+    resize();
 
-    const observer = new ResizeObserver(updateSize);
-    observer.observe(canvas);
-
+    const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
     const globe = createGlobe(canvas, {
-      devicePixelRatio: Math.min(window.devicePixelRatio, 2),
-      width: size,
-      height: size,
+      devicePixelRatio: pixelRatio,
+      width: size.current * pixelRatio,
+      height: size.current * pixelRatio,
       phi: rotation.current.phi,
       theta: rotation.current.theta,
       dark: 1,
-      diffuse: 2,
+      diffuse: 1.7,
       mapSamples: 16000,
-      mapBrightness: 2.2,
+      mapBrightness: 2.5,
       baseColor: [0.72, 0.72, 0.7],
       markerColor: [0.72, 0.72, 0.7],
-      glowColor: [0.3, 0.3, 0.29],
+      glowColor: [0.27, 0.27, 0.26],
       opacity: 1,
-      scale: 1,
+      scale: 0.92,
+      markerElevation: 0.015,
       markers: [
-        { location: BAKU, size: 0.065, color: [0.72, 0.72, 0.7] },
-        { location: ISTANBUL, size: 0.095, color: [1, 0.76, 0.18] },
+        { id: "baku", location: BAKU, size: 0.055 },
+        {
+          id: "istanbul",
+          location: ISTANBUL,
+          size: 0.085,
+          color: [1, 0.76, 0.18],
+        },
       ],
-      onRender: (state) => {
-        state.phi = rotation.current.phi;
-        state.theta = rotation.current.theta;
-        state.width = size;
-        state.height = size;
-        updateRoute(state.phi, state.theta);
-      },
+      arcs: [
+        {
+          id: "baku-istanbul",
+          from: BAKU,
+          to: ISTANBUL,
+          color: [0.83, 0.83, 0.81],
+        },
+      ],
+      arcColor: [0.83, 0.83, 0.81],
+      arcWidth: 0.42,
+      arcHeight: 0.24,
     });
 
+    const render = () => {
+      const renderSize = size.current * pixelRatio;
+      globe.update({
+        phi: rotation.current.phi,
+        theta: rotation.current.theta,
+        width: renderSize,
+        height: renderSize,
+      });
+      frameRef.current = requestAnimationFrame(render);
+    };
+    frameRef.current = requestAnimationFrame(render);
+
+    const observer = new ResizeObserver(resize);
+    observer.observe(viewport);
+
     return () => {
+      cancelAnimationFrame(frameRef.current);
       observer.disconnect();
       globe.destroy();
     };
@@ -145,21 +112,18 @@ export default function GlobeCard() {
   return (
     <section className="globe-card" aria-labelledby="places-title">
       <div className="globe-stage">
-        <canvas
-          ref={canvasRef}
-          className="globe-canvas"
-          onPointerDown={startDrag}
-          onPointerMove={moveGlobe}
-          onPointerUp={stopDrag}
-          onPointerCancel={stopDrag}
-          aria-label="Interactive globe showing Baku, Azerbaijan"
-        />
-        <div ref={routeRef} className="globe-route" aria-hidden="true">
-          <svg viewBox="0 0 430 430">
-            <path ref={routePathRef} d="" />
-          </svg>
-          <span ref={bakuLabelRef} className="route-label route-baku">BAKU</span>
-          <span ref={istanbulLabelRef} className="route-label route-istanbul">ISTANBUL</span>
+        <div ref={viewportRef} className="globe-viewport">
+          <canvas
+            ref={canvasRef}
+            className="globe-canvas"
+            onPointerDown={startDrag}
+            onPointerMove={moveGlobe}
+            onPointerUp={stopDrag}
+            onPointerCancel={stopDrag}
+            aria-label="Baku ve İstanbul arasındaki rotayı gösteren etkileşimli küre"
+          />
+          <span className="globe-marker-label marker-baku">BAKU</span>
+          <span className="globe-marker-label marker-istanbul">ISTANBUL</span>
         </div>
         <p className="globe-hint">Drag to explore</p>
       </div>
