@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { books, goals, posters, profile, projects, quests, reviews, updates } from "./content";
+import GlobeCard from "./GlobeCard";
 
 const pages = [
   ["home", "Home"],
@@ -122,6 +123,10 @@ function HomePage({ navigate }) {
           ))}
         </div>
       </section>
+
+      <div className="home-block home-globe">
+        <GlobeCard />
+      </div>
     </section>
   );
 }

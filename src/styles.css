@@ -276,6 +276,99 @@ h1 {
   font-size: 12px;
 }
 
+.home-globe {
+  width: min(100%, 770px);
+  margin-top: 92px;
+}
+.globe-card {
+  overflow: hidden;
+  border: 1px solid #303030;
+  background: rgba(25,25,25,.42);
+}
+.globe-stage {
+  position: relative;
+  height: 460px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.globe-canvas {
+  display: block;
+  width: min(430px, 82vw);
+  aspect-ratio: 1;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  contain: layout paint size;
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 61%, transparent 72%);
+  mask-image: radial-gradient(circle at 50% 50%, #000 61%, transparent 72%);
+}
+.globe-canvas:active { cursor: grabbing; }
+.globe-location {
+  position: absolute;
+  top: 112px;
+  left: calc(50% - 82px);
+  width: 92px;
+  height: 86px;
+  pointer-events: none;
+}
+.globe-location svg {
+  position: absolute;
+  inset: 0;
+  width: 90px;
+  height: 70px;
+  overflow: visible;
+}
+.globe-location path,
+.globe-location circle {
+  fill: none;
+  stroke: #d5d5d2;
+  stroke-width: 1;
+}
+.globe-location circle { fill: #d5d5d2; }
+.globe-location span {
+  position: absolute;
+  right: -13px;
+  bottom: 2px;
+  padding: 10px 8px;
+  border-radius: 7px;
+  background: #d5d5d2;
+  color: #191919;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+.globe-hint {
+  position: absolute;
+  right: 18px;
+  bottom: 13px;
+  margin: 0;
+  color: #666;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+.globe-footer {
+  min-height: 56px;
+  padding: 0 16px;
+  border-top: 1px solid #303030;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #999;
+  font-size: 12px;
+}
+.globe-footer span:first-child {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  font-style: italic;
+}
+.globe-footer span:last-child {
+  font-weight: 500;
+  letter-spacing: .08em;
+}
+
 /* Remaining pages */
 .content-section { padding-top: 76px; padding-bottom: 80px; }
 .placeholder-page { padding-top: 76px; }
@@ -419,6 +512,9 @@ h1 {
   .review-row { grid-template-columns: 28px 1fr 20px; gap: 12px; }
   .review-row > p { grid-column: 2; }
   .quest { grid-template-columns: 21px 1fr auto; gap: 10px; }
+  .globe-stage { height: 380px; }
+  .globe-location { top: 88px; left: calc(50% - 76px); }
+  .globe-footer { min-height: 52px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
