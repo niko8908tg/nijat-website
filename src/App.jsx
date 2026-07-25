@@ -49,7 +49,6 @@ function HomePage({ navigate }) {
   return (
     <section className="home-page page">
       <div className="home-intro">
-        <img className="home-hero-logo" src={brandLogo} alt="" aria-hidden="true" />
         <h1>{profile.name}</h1>
         <div className="intro-copy">
           <p>{profile.intro}</p>
@@ -259,6 +258,80 @@ const stuffLinks = [
   ["home", "2026 Goals", "What I want to accomplish this year"],
 ];
 
+const toolSections = [
+  {
+    title: "Workstation",
+    items: [
+      ['MacBook Pro 14" M3', "Main machine for everything"],
+      ['49" Ultrawide Monitor', "One screen to rule them all"],
+    ],
+  },
+  {
+    title: "Photography",
+    description:
+      "Sony a6400, mirrorless APS-C. Light enough to travel with, good enough to not compromise.",
+    items: [
+      ["Sony a6400", "Compact mirrorless body, great autofocus"],
+      ["Sigma 18-50mm f/2.8", "Travel zoom, covers most situations while keeping the bag light"],
+      ["Sigma 30mm f/1.4", "The everyday lens, great for street and low light"],
+      ["Sigma 16mm f/1.4", "Wide angle for landscapes and interiors"],
+      ["DJI Mini 2", "Lightweight drone for aerial shots"],
+      ["DJI Osmo Action 3", "Action camera for sports and travel"],
+    ],
+    link: true,
+  },
+  {
+    title: "Running & Training",
+    items: [
+      ["Altra Running Shoes", "Zero-drop because I want strong calves and it feels natural"],
+      ["Adidas Adizero Boston", "Because they feel fast"],
+      ["Garmin Fenix 7 Pro", "Love this thing"],
+    ],
+  },
+];
+
+function ToolRow({ name, description }) {
+  return (
+    <div className="tool-row">
+      <strong>{name}</strong>
+      <span className="tool-dot-line" aria-hidden="true" />
+      <span>{description}</span>
+    </div>
+  );
+}
+
+function ToolsPage({ navigate }) {
+  return (
+    <section className="page tools-page">
+      <div className="tools-content">
+        <header className="tools-heading">
+          <h1>Tools I Use</h1>
+          <p>Hardware, software, and gear that I rely on daily.</p>
+        </header>
+
+        <div className="tool-sections">
+          {toolSections.map((section) => (
+            <section className="tool-section" key={section.title}>
+              <h2>{section.title}</h2>
+              {section.description && <p>{section.description}</p>}
+              <div className="tool-list">
+                {section.items.map(([name, description]) => (
+                  <ToolRow name={name} description={description} key={name} />
+                ))}
+              </div>
+              {section.link && (
+                <button className="tool-photo-link" onClick={() => navigate("posters")} type="button">
+                  See my photos →
+                </button>
+              )}
+            </section>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function StuffPage({ navigate }) {
   return (
     <section className="page stuff-page">
@@ -340,11 +413,12 @@ export default function App() {
         {activePage === "now" && <NowPage />}
         {activePage === "map" && <TravelMap />}
         {activePage === "training" && <TrainingPage />}
+        {activePage === "tools" && <ToolsPage navigate={navigate} />}
         {activePage === "stuff" && <StuffPage navigate={navigate} />}
         {activePage === "posters" && <PostersPage />}
         {activePage === "projects" && <ProjectsPage />}
         {activePage === "reviews" && <ReviewsPage />}
-        {!["home", "now", "map", "training", "stuff", "posters", "projects", "reviews"].includes(activePage) && (
+        {!["home", "now", "map", "training", "tools", "stuff", "posters", "projects", "reviews"].includes(activePage) && (
           <PlaceholderPage title={pages.find(([id]) => id === activePage)?.[1] ?? "Page"} />
         )}
       </main>
