@@ -341,7 +341,13 @@ h1 {
   left: anchor(center);
   bottom: anchor(top);
   opacity: var(--cobe-visible-istanbul, 0);
-  background: #ffc22d;
+}
+.marker-london {
+  position-anchor: --cobe-london;
+  left: anchor(center);
+  bottom: anchor(top);
+  opacity: var(--cobe-visible-london, 0);
+  background: #47c778;
 }
 .globe-hint {
   position: absolute;
@@ -375,7 +381,7 @@ h1 {
   letter-spacing: .08em;
 }
 .globe-footer strong {
-  color: #ffc22d;
+  color: #47c778;
   font-weight: 600;
 }
 

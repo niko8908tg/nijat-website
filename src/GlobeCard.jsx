@@ -3,6 +3,7 @@ import createGlobe from "cobe";
 
 const BAKU = [40.4093, 49.8671];
 const ISTANBUL = [41.0082, 28.9784];
+const LONDON = [51.5072, -0.1276];
 
 export default function GlobeCard() {
   const viewportRef = useRef(null);
@@ -48,7 +49,12 @@ export default function GlobeCard() {
           id: "istanbul",
           location: ISTANBUL,
           size: 0.055,
-          color: [1, 0.76, 0.18],
+        },
+        {
+          id: "london",
+          location: LONDON,
+          size: 0.055,
+          color: [0.28, 0.78, 0.47],
         },
       ],
       arcs: [
@@ -56,6 +62,12 @@ export default function GlobeCard() {
           id: "baku-istanbul",
           from: BAKU,
           to: ISTANBUL,
+          color: [0.83, 0.83, 0.81],
+        },
+        {
+          id: "istanbul-london",
+          from: ISTANBUL,
+          to: LONDON,
           color: [0.83, 0.83, 0.81],
         },
       ],
@@ -130,16 +142,17 @@ export default function GlobeCard() {
           <canvas
             ref={canvasRef}
             className="globe-canvas"
-            aria-label="Baku ve İstanbul arasındaki rotayı gösteren etkileşimli küre"
+            aria-label="Baku, İstanbul ve London rotasını gösteren etkileşimli küre"
           />
           <span className="globe-marker-label marker-baku">BAKU</span>
           <span className="globe-marker-label marker-istanbul">ISTANBUL</span>
+          <span className="globe-marker-label marker-london">LONDON</span>
         </div>
         <p className="globe-hint">Drag to explore</p>
       </div>
       <footer className="globe-footer">
         <span id="places-title">Places</span>
-        <span>Baku&nbsp; · &nbsp;<strong>Istanbul</strong></span>
+        <span>Baku&nbsp; · &nbsp;Istanbul&nbsp; · &nbsp;<strong>London</strong></span>
       </footer>
     </section>
   );
