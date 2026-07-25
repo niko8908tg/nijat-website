@@ -10,7 +10,8 @@ export default function GlobeCard() {
   const frameRef = useRef(0);
   const dragging = useRef(false);
   const pointer = useRef({ x: 0, y: 0 });
-  const rotation = useRef({ phi: 0, theta: 0.25 });
+  // Center the opening view between Baku and Istanbul.
+  const rotation = useRef({ phi: -2.25, theta: 0.25 });
   const size = useRef(430);
 
   useEffect(() => {
