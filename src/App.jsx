@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { posters, profile, projects, reviews, updates } from "./content";
 
@@ -159,4 +157,3 @@ export default function Home() {
     </div>
   );
 }
-

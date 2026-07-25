@@ -51,4 +51,3 @@ export const reviews = [
   { title: "The Practice of Everyday Life", author: "Michel de Certeau", note: "A note on ordinary gestures." },
   { title: "In Praise of Shadows", author: "Jun'ichirō Tanizaki", note: "Light, material, and atmosphere." },
 ];
-
