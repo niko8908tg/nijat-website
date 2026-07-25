@@ -27,8 +27,8 @@ export default function GlobeCard() {
     const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
     const globe = createGlobe(canvas, {
       devicePixelRatio: pixelRatio,
-      width: size.current * pixelRatio,
-      height: size.current * pixelRatio,
+      width: size.current,
+      height: size.current,
       phi: rotation.current.phi,
       theta: rotation.current.theta,
       dark: 1,
@@ -65,18 +65,21 @@ export default function GlobeCard() {
 
     const render = () => {
       if (!dragging.current) rotation.current.phi += 0.004;
-      const renderSize = size.current * pixelRatio;
       globe.update({
         phi: rotation.current.phi,
         theta: rotation.current.theta,
-        width: renderSize,
-        height: renderSize,
       });
       frameRef.current = requestAnimationFrame(render);
     };
     frameRef.current = requestAnimationFrame(render);
 
-    const observer = new ResizeObserver(resize);
+    const observer = new ResizeObserver(() => {
+      resize();
+      globe.update({
+        width: size.current,
+        height: size.current,
+      });
+    });
     observer.observe(viewport);
 
     const startDrag = (event) => {
