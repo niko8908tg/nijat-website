@@ -300,8 +300,7 @@ h1 {
   touch-action: none;
   user-select: none;
   contain: layout paint size;
-  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 61%, transparent 72%);
-  mask-image: radial-gradient(circle at 50% 50%, #000 61%, transparent 72%);
+  filter: contrast(1.04);
 }
 .globe-canvas:active { cursor: grabbing; }
 .globe-location {

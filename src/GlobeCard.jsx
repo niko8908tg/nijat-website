@@ -7,7 +7,7 @@ export default function GlobeCard() {
   const canvasRef = useRef(null);
   const dragging = useRef(false);
   const pointer = useRef({ x: 0, y: 0 });
-  const rotation = useRef({ phi: 4.02, theta: 0.34 });
+  const rotation = useRef({ phi: 1.5, theta: -0.18 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -28,17 +28,16 @@ export default function GlobeCard() {
       phi: rotation.current.phi,
       theta: rotation.current.theta,
       dark: 1,
-      diffuse: 1.35,
+      diffuse: 2,
       mapSamples: 16000,
-      mapBrightness: 3.2,
-      baseColor: [0.12, 0.12, 0.12],
-      markerColor: [0.87, 0.87, 0.84],
-      glowColor: [0.12, 0.12, 0.12],
-      opacity: 0.95,
+      mapBrightness: 2.2,
+      baseColor: [0.72, 0.72, 0.7],
+      markerColor: [1, 0.82, 0.35],
+      glowColor: [0.3, 0.3, 0.29],
+      opacity: 1,
       scale: 0.92,
       markers: [{ location: BAKU, size: 0.085 }],
       onRender: (state) => {
-        if (!dragging.current) rotation.current.phi += 0.0012;
         state.phi = rotation.current.phi;
         state.theta = rotation.current.theta;
         state.width = size * 2;
