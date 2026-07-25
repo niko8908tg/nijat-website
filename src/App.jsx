@@ -3,6 +3,7 @@ import { books, goals, posters, profile, projects, quests, reviews, updates } fr
 import GlobeCard from "./GlobeCard";
 import TravelMap from "./TravelMap";
 import TrainingPage from "./TrainingPage";
+import BooksPage from "./BooksPage";
 import brandLogo from "./assets/nm-logo.png";
 
 const pages = [
@@ -17,9 +18,11 @@ const pages = [
   ["stuff", "Stuff"],
 ];
 
+const pageIds = new Set([...pages.map(([id]) => id), "books"]);
+
 function getPageFromHash() {
   const page = window.location.hash.replace("#/", "");
-  return pages.some(([id]) => id === page) ? page : "home";
+  return pageIds.has(page) ? page : "home";
 }
 
 function Icon({ name }) {
@@ -252,7 +255,7 @@ function NowPage() {
 }
 
 const stuffLinks = [
-  ["reviews", "Books", "What I’ve been reading"],
+  ["books", "Books", "What I’ve been reading"],
   ["stuff", "Gaming", "Video games that left a mark"],
   ["tools", "Tools", "Hardware and gear I use daily"],
   ["home", "2026 Goals", "What I want to accomplish this year"],
@@ -396,11 +399,16 @@ export default function App() {
           <span>NM</span>
         </div>
         <nav aria-label="Main navigation">
-          {pages.map(([id, label]) => (
-            <button key={id} className={activePage === id ? "nav-link active" : "nav-link"} onClick={() => navigate(id)}>
-              {label}
-            </button>
-          ))}
+          {pages.map(([id, label]) => {
+            const isActive =
+              activePage === id || (activePage === "books" && id === "stuff");
+
+            return (
+              <button key={id} className={isActive ? "nav-link active" : "nav-link"} onClick={() => navigate(id)}>
+                {label}
+              </button>
+            );
+          })}
         </nav>
         <div className="side-note"><span>Selected work</span><span>2024—26</span></div>
       </aside>
@@ -413,12 +421,13 @@ export default function App() {
         {activePage === "now" && <NowPage />}
         {activePage === "map" && <TravelMap />}
         {activePage === "training" && <TrainingPage />}
+        {activePage === "books" && <BooksPage />}
         {activePage === "tools" && <ToolsPage navigate={navigate} />}
         {activePage === "stuff" && <StuffPage navigate={navigate} />}
         {activePage === "posters" && <PostersPage />}
         {activePage === "projects" && <ProjectsPage />}
         {activePage === "reviews" && <ReviewsPage />}
-        {!["home", "now", "map", "training", "tools", "stuff", "posters", "projects", "reviews"].includes(activePage) && (
+        {!["home", "now", "map", "training", "books", "tools", "stuff", "posters", "projects", "reviews"].includes(activePage) && (
           <PlaceholderPage title={pages.find(([id]) => id === activePage)?.[1] ?? "Page"} />
         )}
       </main>
