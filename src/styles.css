@@ -60,8 +60,8 @@ button { border: 0; }
   font-weight: 600;
 }
 .monogram {
-  min-height: 32px;
-  margin-bottom: 70px;
+  min-height: 48px;
+  margin-bottom: 54px;
   color: #bdbdbd;
   display: flex;
   align-items: center;
@@ -72,8 +72,8 @@ button { border: 0; }
 }
 .monogram img {
   display: block;
-  width: 32px;
-  height: 32px;
+  width: 48px;
+  height: 48px;
   object-fit: contain;
 }
 .monogram span {
