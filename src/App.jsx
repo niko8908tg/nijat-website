@@ -3,9 +3,14 @@ import { books, goals, posters, profile, projects, quests, reviews, updates } fr
 
 const pages = [
   ["home", "Home"],
+  ["now", "Now"],
   ["posters", "My Posters"],
-  ["projects", "Workshops & Projects"],
+  ["projects", "Projects"],
   ["reviews", "Literature Review"],
+  ["map", "Map"],
+  ["tools", "Tools"],
+  ["training", "Training"],
+  ["stuff", "Stuff"],
 ];
 
 function getPageFromHash() {
@@ -192,6 +197,16 @@ function ReviewsPage() {
   );
 }
 
+function PlaceholderPage({ title }) {
+  return (
+    <section className="page placeholder-page">
+      <p className="section-label">Archive / Coming soon</p>
+      <h2>{title}</h2>
+      <p>This page is ready for your content.</p>
+    </section>
+  );
+}
+
 export default function App() {
   const [activePage, setActivePage] = useState(getPageFromHash);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -232,6 +247,9 @@ export default function App() {
         {activePage === "posters" && <PostersPage />}
         {activePage === "projects" && <ProjectsPage />}
         {activePage === "reviews" && <ReviewsPage />}
+        {!["home", "posters", "projects", "reviews"].includes(activePage) && (
+          <PlaceholderPage title={pages.find(([id]) => id === activePage)?.[1] ?? "Page"} />
+        )}
       </main>
     </div>
   );
