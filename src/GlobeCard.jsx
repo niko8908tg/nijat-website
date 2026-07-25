@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import createGlobe from "cobe";
 
 const BAKU = [40.4093, 49.8671];
+const ISTANBUL = [41.0082, 28.9784];
 
 export default function GlobeCard() {
   const canvasRef = useRef(null);
@@ -23,8 +24,8 @@ export default function GlobeCard() {
 
     const globe = createGlobe(canvas, {
       devicePixelRatio: Math.min(window.devicePixelRatio, 2),
-      width: size * 2,
-      height: size * 2,
+      width: size,
+      height: size,
       phi: rotation.current.phi,
       theta: rotation.current.theta,
       dark: 1,
@@ -32,16 +33,19 @@ export default function GlobeCard() {
       mapSamples: 16000,
       mapBrightness: 2.2,
       baseColor: [0.72, 0.72, 0.7],
-      markerColor: [1, 0.82, 0.35],
+      markerColor: [0.72, 0.72, 0.7],
       glowColor: [0.3, 0.3, 0.29],
       opacity: 1,
-      scale: 0.6,
-      markers: [{ location: BAKU, size: 0.085 }],
+      scale: 1,
+      markers: [
+        { location: BAKU, size: 0.065, color: [0.72, 0.72, 0.7] },
+        { location: ISTANBUL, size: 0.095, color: [1, 0.76, 0.18] },
+      ],
       onRender: (state) => {
         state.phi = rotation.current.phi;
         state.theta = rotation.current.theta;
-        state.width = size * 2;
-        state.height = size * 2;
+        state.width = size;
+        state.height = size;
       },
     });
 
@@ -88,18 +92,20 @@ export default function GlobeCard() {
           onPointerCancel={stopDrag}
           aria-label="Interactive globe showing Baku, Azerbaijan"
         />
-        <div className="globe-location" aria-hidden="true">
-          <svg viewBox="0 0 90 70">
-            <path d="M3 7 C24 4 43 18 61 38" />
-            <circle cx="62" cy="39" r="2.4" />
+        <div className="globe-route" aria-hidden="true">
+          <svg viewBox="0 0 430 190">
+            <path d="M116 106 C164 28 272 25 324 92" />
+            <circle cx="116" cy="106" r="3" />
+            <circle className="active-point" cx="324" cy="92" r="4" />
           </svg>
-          <span>BAKU</span>
+          <span className="route-label route-baku">BAKU</span>
+          <span className="route-label route-istanbul">ISTANBUL</span>
         </div>
         <p className="globe-hint">Drag to explore</p>
       </div>
       <footer className="globe-footer">
         <span id="places-title">places</span>
-        <span>Baku&nbsp; · &nbsp;Azerbaijan</span>
+        <span>Baku&nbsp; · &nbsp;<strong>Istanbul</strong></span>
       </footer>
     </section>
   );
