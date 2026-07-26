@@ -196,21 +196,31 @@ export default function AsciiBackdrop() {
           const logoX = logoBounds ? (col - logoBounds.left) / logoBounds.width : -1;
           const logoY = logoBounds ? (row - logoBounds.top) / logoBounds.height : -1;
           const isJawArea =
-            (logoY > 0.58 && logoX > 0.08 && logoX < 0.3) ||
-            (logoY > 0.55 && logoX > 0.84 && logoX < 0.96) ||
-            (logoY > 0.88 && logoX > 0.28 && logoX < 0.88);
+            (logoY > 0.6 && logoX > 0.15 && logoX < 0.36) ||
+            (logoY > 0.5 && logoX > 0.83 && logoX < 0.97) ||
+            (logoY > 0.88 && logoX > 0.25 && logoX < 0.91);
           const isMouthArea =
-            (logoX > 0.4 && logoX < 0.9 && logoY > 0.64 && logoY < 0.86) ||
-            (logoX > 0.7 && logoX < 0.93 && logoY > 0.6 && logoY < 0.86);
+            (logoX > 0.42 && logoX < 0.92 && logoY > 0.66 && logoY < 0.88) ||
+            (logoX > 0.78 && logoX < 0.94 && logoY > 0.61 && logoY < 0.88);
+          const upperFacialHairY = 0.81 - logoX * 0.25;
           const isUpperFacialHair =
-            logoX > 0.42 && logoX < 0.69 && logoY > 0.54 && logoY < 0.635;
+            logoX > 0.54 &&
+            logoX < 0.78 &&
+            Math.abs(logoY - upperFacialHairY) < 0.018;
           const isLowerFacialHair =
-            logoX > 0.61 && logoX < 0.9 && logoY > 0.87 && logoY < 0.97;
+            logoX > 0.7 && logoX < 0.875 && logoY > 0.88 && logoY < 0.95;
+          const isLeftEye =
+            logoX > 0.42 && logoX < 0.56 && logoY > 0.46 && logoY < 0.66;
           const isRightEye =
-            logoX > 0.61 && logoX < 0.78 && logoY > 0.42 && logoY < 0.61;
+            logoX > 0.68 && logoX < 0.82 && logoY > 0.43 && logoY < 0.62;
           const isNoseArea =
-            logoX > 0.49 && logoX < 0.67 && logoY > 0.46 && logoY < 0.69;
-          const isFineDetail = isRightEye || isNoseArea;
+            logoX > 0.57 && logoX < 0.73 && logoY > 0.48 && logoY < 0.68;
+          const isLeftBrow =
+            logoX > 0.37 && logoX < 0.6 && logoY > 0.39 && logoY < 0.54;
+          const isRightBrow =
+            logoX > 0.62 && logoX < 0.83 && logoY > 0.37 && logoY < 0.49;
+          const isFineDetail =
+            isLeftEye || isRightEye || isNoseArea || isLeftBrow || isRightBrow;
           const rawMask = maskAt(row, col);
           let mask = rawMask;
 
@@ -225,14 +235,13 @@ export default function AsciiBackdrop() {
             );
             mask = rawMask > 0.08 && boundaryStrength > 0.08 ? 1 : 0;
           } else if (isJawArea) {
-            const neighbors = [
-              maskAt(row, col - 1),
-              maskAt(row, col + 1),
-              maskAt(row - 1, col),
-              maskAt(row + 1, col),
-            ].sort((a, b) => b - a);
-            const coreMask = neighbors[2];
-            mask = rawMask > 0.08 && coreMask > 0.08 ? 1 : 0;
+            const boundaryStrength = Math.max(
+              rawMask - maskAt(row, col - 1),
+              rawMask - maskAt(row, col + 1),
+              rawMask - maskAt(row - 1, col),
+              rawMask - maskAt(row + 1, col),
+            );
+            mask = rawMask > 0.08 && boundaryStrength > 0.08 ? 1 : 0;
           }
 
           if (mask < 0.06 && seededValue(index + 73) < 0.72) continue;
