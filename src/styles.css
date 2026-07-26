@@ -50,13 +50,12 @@ button { border: 0; }
 }
 
 .ascii-backdrop {
-  position: absolute;
-  top: 0;
-  right: calc(100% - (100vw - 240px) - 10px);
-  z-index: -1;
+  position: relative;
+  z-index: 0;
   display: block;
-  width: calc((100vw - 240px) * .56);
-  height: clamp(360px, 8vh, 8px);
+  width: 100%;
+  height: 360px;
+  align-self: stretch;
   pointer-events: none;
 }
 
@@ -348,22 +347,29 @@ main { margin-left: 240px; }
 .home-page {
   position: relative;
   isolation: isolate;
-  max-width: 1204px;
-  padding-top: 70px;
+  max-width: none;
+  padding-top: 0;
+  padding-right: 0;
   padding-bottom: 74px;
+  padding-left: 48px;
 }
 .home-content {
   width: 100%;
-  max-width: 896px;
-  margin: 0 auto;
+  max-width: none;
+  margin: 0;
 }
 .home-intro {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(250px, 320px);
-  align-items: center;
-  gap: 28px;
+  grid-template-columns: minmax(0, 56fr) minmax(0, 44fr);
+  align-items: stretch;
+  gap: 0;
+  min-height: 360px;
 }
-.home-intro-text { min-width: 0; }
+.home-intro-text {
+  min-width: 0;
+  padding-top: 70px;
+  padding-right: 48px;
+}
 h1 {
   margin: 0 0 28px;
   color: #d5d5d5;

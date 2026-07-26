@@ -110,7 +110,9 @@ export default function AsciiBackdrop() {
     };
 
     function createRows() {
-      const charactersPerRow = Math.ceil(state.width / 4) + 12;
+      context.font = `500 6px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
+      const glyphWidth = Math.max(1, context.measureText("M").width);
+      const charactersPerRow = Math.ceil(state.width / glyphWidth) + 8;
       state.rowStrings = Array.from({ length: state.rows }, (_, row) => {
         const offset = Math.floor(seededValue(row + 17) * CLAIMS.length);
         let text = "";
