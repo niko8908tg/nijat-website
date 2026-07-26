@@ -1,11 +1,22 @@
 import { useEffect, useRef } from "react";
 
 const PARAMETERS = {
-  pointsNumber: 40,
-  widthFactor: 0.045,
+  pointsNumber: 18,
+  widthFactor: 0.1,
   spring: 0.4,
   friction: 0.5,
 };
+
+const INTERACTIVE_SELECTOR = [
+  "a",
+  "button",
+  "input",
+  "select",
+  "textarea",
+  "[role='button']",
+  ".globe-canvas",
+  ".travel-map-svg",
+].join(",");
 
 export default function CurlyCursor() {
   const canvasRef = useRef(null);
@@ -30,6 +41,8 @@ export default function CurlyCursor() {
     let pixelRatio = 1;
     let animationFrame = 0;
     let pointerMoved = false;
+    let hoverTarget = 0;
+    let hoverAmount = 0;
 
     const pointer = {
       x: viewportWidth / 2,
@@ -59,6 +72,23 @@ export default function CurlyCursor() {
       pointerMoved = true;
       pointer.x = event.clientX;
       pointer.y = event.clientY;
+      hoverTarget =
+        event.target instanceof Element &&
+        event.target.closest(INTERACTIVE_SELECTOR)
+          ? 1
+          : 0;
+    };
+
+    const updateHover = (event) => {
+      hoverTarget =
+        event.target instanceof Element &&
+        event.target.closest(INTERACTIVE_SELECTOR)
+          ? 1
+          : 0;
+    };
+
+    const pulseCursor = () => {
+      hoverAmount = Math.max(hoverAmount, 0.6);
     };
 
     const draw = (time) => {
@@ -73,6 +103,7 @@ export default function CurlyCursor() {
           viewportHeight;
       }
 
+      hoverAmount += (hoverTarget - hoverAmount) * 0.15;
       context.clearRect(0, 0, viewportWidth, viewportHeight);
 
       trail.forEach((point, index) => {
@@ -113,6 +144,30 @@ export default function CurlyCursor() {
         context.stroke();
       }
 
+      const head = trail[0];
+      const dotOpacity = 1 - hoverAmount;
+
+      if (dotOpacity > 0.01) {
+        context.beginPath();
+        context.arc(head.x, head.y, 4.5, 0, Math.PI * 2);
+        context.fillStyle = `rgba(208, 208, 208, ${0.9 * dotOpacity})`;
+        context.fill();
+      }
+
+      if (hoverAmount > 0.01) {
+        context.beginPath();
+        context.arc(
+          head.x,
+          head.y,
+          6 + hoverAmount * 8,
+          0,
+          Math.PI * 2,
+        );
+        context.lineWidth = 1.25;
+        context.strokeStyle = `rgba(208, 208, 208, ${0.9 * hoverAmount})`;
+        context.stroke();
+      }
+
       animationFrame = window.requestAnimationFrame(draw);
     };
 
@@ -121,11 +176,15 @@ export default function CurlyCursor() {
 
     window.addEventListener("resize", resizeCanvas);
     window.addEventListener("pointermove", updatePointer, { passive: true });
+    window.addEventListener("pointerover", updateHover, { passive: true });
+    window.addEventListener("pointerdown", pulseCursor, { passive: true });
 
     return () => {
       window.cancelAnimationFrame(animationFrame);
       window.removeEventListener("resize", resizeCanvas);
       window.removeEventListener("pointermove", updatePointer);
+      window.removeEventListener("pointerover", updateHover);
+      window.removeEventListener("pointerdown", pulseCursor);
     };
   }, []);
 
