@@ -48,9 +48,9 @@ button { border: 0; }
 }
 
 .ascii-backdrop {
-  position: fixed;
+  position: absolute;
   top: 0;
-  right: 0;
+  right: calc(100% - (100vw - 240px));
   z-index: -1;
   display: block;
   width: calc((100vw - 240px) * .56);
@@ -1282,7 +1282,10 @@ h1 {
   main { margin-left: 0; }
   .page { padding-left: 22px; padding-right: 22px; }
   .home-page { padding-top: 88px; }
-  .ascii-backdrop { width: 56vw; }
+  .ascii-backdrop {
+    right: 0;
+    width: 56vw;
+  }
   .home-columns { grid-template-columns: 1fr; }
 }
 
