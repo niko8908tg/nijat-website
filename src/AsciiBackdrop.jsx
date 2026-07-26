@@ -190,54 +190,94 @@ export default function AsciiBackdrop() {
         return Math.max(0, Math.min(1, (0.78 - luminance) / 0.5));
       };
 
+      const suppressedFacialHair = new Set();
+
+      if (maskPixels && logoBounds) {
+        const visited = new Uint8Array(state.rows * state.cols);
+        const directions = [
+          [-1, 0],
+          [1, 0],
+          [0, -1],
+          [0, 1],
+        ];
+
+        for (let startRow = 0; startRow < state.rows; startRow += 1) {
+          for (let startCol = 0; startCol < state.cols; startCol += 1) {
+            const startIndex = startRow * state.cols + startCol;
+            if (visited[startIndex] || maskAt(startRow, startCol) < 0.16) continue;
+
+            const component = [];
+            const queue = [[startRow, startCol]];
+            visited[startIndex] = 1;
+
+            for (let cursor = 0; cursor < queue.length; cursor += 1) {
+              const [currentRow, currentCol] = queue[cursor];
+              component.push(currentRow * state.cols + currentCol);
+
+              for (const [rowOffset, colOffset] of directions) {
+                const nextRow = currentRow + rowOffset;
+                const nextCol = currentCol + colOffset;
+                if (
+                  nextRow < 0 ||
+                  nextRow >= state.rows ||
+                  nextCol < 0 ||
+                  nextCol >= state.cols
+                ) {
+                  continue;
+                }
+
+                const nextIndex = nextRow * state.cols + nextCol;
+                if (visited[nextIndex] || maskAt(nextRow, nextCol) < 0.16) continue;
+                visited[nextIndex] = 1;
+                queue.push([nextRow, nextCol]);
+              }
+            }
+
+            if (component.length > 48) continue;
+
+            let centerRow = 0;
+            let centerCol = 0;
+            for (const componentIndex of component) {
+              centerRow += Math.floor(componentIndex / state.cols);
+              centerCol += componentIndex % state.cols;
+            }
+            centerRow /= component.length;
+            centerCol /= component.length;
+
+            const centerX = (centerCol - logoBounds.left) / logoBounds.width;
+            const centerY = (centerRow - logoBounds.top) / logoBounds.height;
+            const isUpperFacialHair =
+              centerX > 0.48 && centerX < 0.82 && centerY > 0.58 && centerY < 0.72;
+            const isLowerFacialHair =
+              centerX > 0.66 && centerX < 0.91 && centerY > 0.82 && centerY < 0.97;
+
+            if (isUpperFacialHair || isLowerFacialHair) {
+              for (const componentIndex of component) {
+                suppressedFacialHair.add(componentIndex);
+              }
+            }
+          }
+        }
+      }
+
       for (let row = 0; row < state.rows; row += 1) {
         for (let col = 0; col < state.cols; col += 1) {
           const index = row * state.cols + col;
+          if (suppressedFacialHair.has(index)) continue;
+
           const logoX = logoBounds ? (col - logoBounds.left) / logoBounds.width : -1;
           const logoY = logoBounds ? (row - logoBounds.top) / logoBounds.height : -1;
           const isLeftJaw =
-            logoY > 0.6 && logoX > 0.15 && logoX < 0.36;
+            logoY > 0.68 && logoX > 0.14 && logoX < 0.38;
           const isRightJaw =
-            logoY > 0.5 && logoX > 0.83 && logoX < 0.97;
+            logoY > 0.62 && logoX > 0.81 && logoX < 0.98;
           const isBottomJaw =
-            logoY > 0.86 && logoX > 0.22 && logoX < 0.93;
+            logoY > 0.84 && logoX > 0.22 && logoX < 0.93;
           const isJawArea = isLeftJaw || isRightJaw || isBottomJaw;
-          const isMouthArea =
-            (logoX > 0.42 && logoX < 0.92 && logoY > 0.66 && logoY < 0.88) ||
-            (logoX > 0.78 && logoX < 0.94 && logoY > 0.61 && logoY < 0.88);
-          const upperFacialHairY = 0.81 - logoX * 0.25;
-          const isUpperFacialHair =
-            logoX > 0.54 &&
-            logoX < 0.78 &&
-            Math.abs(logoY - upperFacialHairY) < 0.018;
-          const isLowerFacialHair =
-            logoX > 0.7 && logoX < 0.875 && logoY > 0.88 && logoY < 0.95;
-          const isLeftEye =
-            logoX > 0.42 && logoX < 0.56 && logoY > 0.46 && logoY < 0.66;
-          const isRightEye =
-            logoX > 0.68 && logoX < 0.82 && logoY > 0.43 && logoY < 0.62;
-          const isNoseArea =
-            logoX > 0.57 && logoX < 0.73 && logoY > 0.48 && logoY < 0.68;
-          const isLeftBrow =
-            logoX > 0.37 && logoX < 0.6 && logoY > 0.39 && logoY < 0.54;
-          const isRightBrow =
-            logoX > 0.62 && logoX < 0.83 && logoY > 0.37 && logoY < 0.49;
-          const isFineDetail =
-            isLeftEye || isRightEye || isNoseArea || isLeftBrow || isRightBrow;
           const rawMask = maskAt(row, col);
           let mask = rawMask;
 
-          if (isUpperFacialHair || isLowerFacialHair) continue;
-
-          if (isMouthArea) {
-            const boundaryStrength = Math.max(
-              rawMask - maskAt(row, col - 1),
-              rawMask - maskAt(row, col + 1),
-              rawMask - maskAt(row - 1, col),
-              rawMask - maskAt(row + 1, col),
-            );
-            mask = rawMask > 0.08 && boundaryStrength > 0.08 ? 1 : 0;
-          } else if (isJawArea) {
+          if (isJawArea) {
             const leftBoundary = isLeftJaw ? rawMask - maskAt(row, col - 1) : 0;
             const rightBoundary = isRightJaw ? rawMask - maskAt(row, col + 1) : 0;
             const bottomBoundary = isBottomJaw ? rawMask - maskAt(row + 1, col) : 0;
@@ -254,13 +294,13 @@ export default function AsciiBackdrop() {
           const claimIndex =
             (index + Math.floor(seededValue(row) * CLAIMS.length)) % CLAIMS.length;
           const baseChar = CLAIMS[claimIndex];
-          let mouthChar = baseChar;
+          let jawChar = baseChar;
 
-          if ((isMouthArea || isJawArea) && mask > 0 && !/[A-Z0-9]/.test(mouthChar)) {
+          if (isJawArea && mask > 0 && !/[A-Z0-9]/.test(jawChar)) {
             for (let offset = 1; offset < CLAIMS.length; offset += 1) {
               const candidate = CLAIMS[(claimIndex + offset) % CLAIMS.length];
               if (/[A-Z0-9]/.test(candidate)) {
-                mouthChar = candidate;
+                jawChar = candidate;
                 break;
               }
             }
@@ -271,9 +311,8 @@ export default function AsciiBackdrop() {
             row,
             alpha: seededValue(index + 911),
             mask: Math.pow(mask, 0.72),
-            fineDetail: isFineDetail && rawMask > 0.08,
             seed: seededValue(index + 401),
-            baseChar: (isMouthArea || isJawArea) && mask > 0 ? mouthChar : baseChar,
+            baseChar: isJawArea && mask > 0 ? jawChar : baseChar,
           });
         }
       }
@@ -369,14 +408,13 @@ export default function AsciiBackdrop() {
         const scramble =
           rippleInfluence > cell.seed * 0.56 ||
           Math.sin(time * 0.0011 + cell.seed * 16) > 0.994;
-        const glyph = glyphFor(cell, time, scramble);
-        const maskOpacity = cell.mask * (cell.fineDetail ? 0.94 : 0.78);
+        const maskOpacity = cell.mask * 0.78;
         const baseOpacity = (0.012 + cell.alpha * 0.04 + maskOpacity) * entrance;
         const opacity = Math.max(0, baseOpacity * (1 - dissolve) + rippleInfluence * 0.5);
         if (opacity < 0.012) continue;
 
         context.fillStyle = `rgba(232, 232, 232, ${Math.min(0.96, opacity)})`;
-        context.fillText(glyph, x, y);
+        context.fillText(glyphFor(cell, time, scramble), x, y);
       }
     }
 
