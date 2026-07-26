@@ -14,7 +14,6 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-simple-maps": "^3.0.0",
-    "three": "^0.174.0",
     "world-atlas": "^2.0.2"
   },
   "devDependencies": {

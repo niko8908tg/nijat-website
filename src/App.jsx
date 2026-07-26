@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { books, goals, posters, profile, projects, quests, reviews, updates } from "./content";
 import GlobeCard from "./GlobeCard";
 import TravelMap from "./TravelMap";
@@ -6,9 +6,8 @@ import TrainingPage from "./TrainingPage";
 import BooksPage from "./BooksPage";
 import CurlyCursor from "./CurlyCursor";
 import PageInspector from "./PageInspector";
+import AsciiBackdrop from "./AsciiBackdrop";
 import brandLogo from "./assets/nm-logo.png";
-
-const BrainNetwork = lazy(() => import("./BrainNetwork"));
 
 const pages = [
   ["home", "Home"],
@@ -56,8 +55,6 @@ function HomePage({ navigate }) {
   return (
     <section className="home-page page">
       <div className="home-content">
-      <div className="home-intro">
-        <div className="home-intro-text">
         <h1>{profile.name}</h1>
         <div className="intro-copy">
           <p>{profile.intro}</p>
@@ -71,11 +68,6 @@ function HomePage({ navigate }) {
           <a className="contact-plain-link" href={`mailto:${profile.email}`}>{profile.email}</a>
           <a href={`mailto:${profile.email}`}>Send a message</a>
         </div>
-        </div>
-        <Suspense fallback={<div className="brain-network" aria-hidden="true" />}>
-          <BrainNetwork />
-        </Suspense>
-      </div>
 
       <section className="home-block updates">
         <p className="section-label">Recently updated</p>
@@ -456,6 +448,7 @@ export default function App() {
 
   return (
     <div className="site-shell">
+      <AsciiBackdrop />
       <CurlyCursor />
       <PageInspector pageKey={activePage} />
       <aside className={menuOpen ? "sidebar is-open" : "sidebar"}>

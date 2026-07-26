@@ -21,8 +21,6 @@ body {
   margin: 0;
   min-width: 320px;
   background-color: var(--bg);
-  background-image: radial-gradient(circle, rgba(255,255,255,.035) .7px, transparent .8px);
-  background-size: 24px 24px;
   color: var(--text);
   font-family: "Space Grotesk", Arial, sans-serif;
   font-weight: 300;
@@ -35,6 +33,22 @@ button { border: 0; }
 .site-shell {
   position: relative;
   min-height: 100vh;
+  isolation: isolate;
+}
+
+.ascii-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+
+.site-shell > main {
+  position: relative;
+  z-index: 1;
 }
 
 .curly-cursor {
@@ -253,7 +267,8 @@ button { border: 0; }
   z-index: 20;
   width: 240px;
   padding: 38px 48px 30px;
-  background: var(--bg);
+  background: rgba(25, 25, 25, .92);
+  backdrop-filter: blur(2px);
   display: flex;
   flex-direction: column;
   font-size: 12px;
@@ -332,30 +347,6 @@ main { margin-left: 240px; }
   max-width: 896px;
   margin: 0 auto;
 }
-.home-intro {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(250px, 300px);
-  align-items: center;
-  gap: 26px;
-  max-width: 1060px;
-}
-.home-intro-text { min-width: 0; }
-.brain-network {
-  position: relative;
-  width: 100%;
-  height: 230px;
-  overflow: hidden;
-  touch-action: pan-y;
-}
-.brain-network-canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  outline: none;
-  transition: opacity .35s ease;
-}
-.brain-network.is-ready .brain-network-canvas { opacity: 1; }
 h1 {
   margin: 0 0 28px;
   color: #d5d5d5;
@@ -1281,12 +1272,6 @@ h1 {
 
 @media (max-width: 580px) {
   h1 { font-size: 36px; }
-  .home-intro { grid-template-columns: 1fr; }
-  .brain-network {
-    width: min(100%, 360px);
-    height: 210px;
-    justify-self: center;
-  }
   .intro-copy { font-size: 16px; }
   .home-block { margin-top: 62px; }
   .update-row { grid-template-columns: 1fr auto; gap: 12px; padding: 8px 0; }
