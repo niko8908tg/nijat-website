@@ -38,8 +38,8 @@ export default function AsciiBackdrop() {
       dpr: 1,
       cols: 0,
       rows: 0,
-      cellWidth: 6,
-      cellHeight: 10,
+      cellWidth: 5,
+      cellHeight: 8,
       rowStrings: [],
       modelCells: [],
       pointerX: -1000,
@@ -53,7 +53,7 @@ export default function AsciiBackdrop() {
     };
 
     function createRows() {
-      const charactersPerRow = Math.ceil(state.width / 5) + 12;
+      const charactersPerRow = Math.ceil(state.width / 4) + 12;
       state.rowStrings = Array.from({ length: state.rows }, (_, row) => {
         const offset = Math.floor(seededValue(row + 17) * CLAIMS.length);
         let text = "";
@@ -68,6 +68,8 @@ export default function AsciiBackdrop() {
 
     function createField() {
       let maskPixels = null;
+      let maskValues = null;
+      let logoBounds = null;
 
       if (logoReady) {
         const maskCanvas = document.createElement("canvas");
@@ -96,18 +98,32 @@ export default function AsciiBackdrop() {
 
           const drawWidth = drawPixelWidth / state.cellWidth;
           const drawHeight = drawPixelHeight / state.cellHeight;
+          const logoLeft = (state.cols - drawWidth) / 2;
+          const logoTop = (state.rows - drawHeight) / 2;
           maskContext.drawImage(
             logoImage,
             sourceX,
             sourceY,
             sourceWidth,
             sourceHeight,
-            (state.cols - drawWidth) / 2,
-            (state.rows - drawHeight) / 2,
+            logoLeft,
+            logoTop,
             drawWidth,
             drawHeight,
           );
           maskPixels = maskContext.getImageData(0, 0, state.cols, state.rows).data;
+          maskValues = new Float32Array(state.cols * state.rows);
+          logoBounds = { left: logoLeft, top: logoTop, width: drawWidth, height: drawHeight };
+
+          for (let index = 0; index < maskValues.length; index += 1) {
+            const pixelIndex = index * 4;
+            const luminance = (
+              maskPixels[pixelIndex] +
+              maskPixels[pixelIndex + 1] +
+              maskPixels[pixelIndex + 2]
+            ) / (3 * 255);
+            maskValues[index] = Math.max(0, Math.min(1, (0.8 - luminance) / 0.48));
+          }
         }
       }
 
@@ -116,15 +132,31 @@ export default function AsciiBackdrop() {
       for (let row = 0; row < state.rows; row += 1) {
         for (let col = 0; col < state.cols; col += 1) {
           const index = row * state.cols + col;
-          const pixelIndex = index * 4;
-          const luminance = maskPixels
-            ? (
-              maskPixels[pixelIndex] +
-              maskPixels[pixelIndex + 1] +
-              maskPixels[pixelIndex + 2]
-            ) / (3 * 255)
-            : 1;
-          const mask = Math.max(0, Math.min(1, (0.78 - luminance) / 0.5));
+          const rawMask = maskValues?.[index] ?? 0;
+          let edgeMask = 0;
+
+          if (maskValues) {
+            const left = maskValues[row * state.cols + Math.max(0, col - 1)] ?? 0;
+            const right = maskValues[row * state.cols + Math.min(state.cols - 1, col + 1)] ?? 0;
+            const above = maskValues[Math.max(0, row - 1) * state.cols + col] ?? 0;
+            const below = maskValues[Math.min(state.rows - 1, row + 1) * state.cols + col] ?? 0;
+            edgeMask = Math.max(
+              Math.abs(rawMask - left),
+              Math.abs(rawMask - right),
+              Math.abs(rawMask - above),
+              Math.abs(rawMask - below),
+            );
+          }
+
+          const logoX = logoBounds ? (col - logoBounds.left) / logoBounds.width : -1;
+          const logoY = logoBounds ? (row - logoBounds.top) / logoBounds.height : -1;
+          const isFaceFeatureArea =
+            logoX > 0.16 && logoX < 0.88 && logoY > 0.38 && logoY < 0.91;
+          const mask = Math.min(
+            1,
+            rawMask * (isFaceFeatureArea ? 0.96 : 0.25) +
+              edgeMask * (isFaceFeatureArea ? 0.5 : 0.72),
+          );
           if (mask < 0.06 && seededValue(index + 73) < 0.72) continue;
 
           modelCells.push({
@@ -147,8 +179,8 @@ export default function AsciiBackdrop() {
       state.width = Math.max(1, Math.round(bounds.width));
       state.height = Math.max(1, Math.round(bounds.height));
       state.dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      state.cellWidth = state.width < 280 ? 5 : 6;
-      state.cellHeight = state.width < 280 ? 9 : 10;
+      state.cellWidth = state.width < 280 ? 4 : 5;
+      state.cellHeight = state.width < 280 ? 7 : 8;
       state.cols = Math.ceil(state.width / state.cellWidth);
       state.rows = Math.ceil(state.height / state.cellHeight);
 
@@ -183,8 +215,8 @@ export default function AsciiBackdrop() {
       context.clearRect(0, 0, state.width, state.height);
       context.textAlign = "left";
       context.textBaseline = "top";
-      context.font = `500 8px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
-      context.fillStyle = "rgba(222, 225, 226, 0.065)";
+      context.font = `500 7px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
+      context.fillStyle = "rgba(222, 225, 226, 0.045)";
 
       for (let row = 0; row < state.rows; row += 1) {
         context.fillText(state.rowStrings[row], 0, row * state.cellHeight);
@@ -200,7 +232,7 @@ export default function AsciiBackdrop() {
 
       context.textAlign = "center";
       context.textBaseline = "middle";
-      context.font = `600 8px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
+      context.font = `600 7px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
 
       for (const cell of state.modelCells) {
         const x = (cell.col + 0.5) * state.cellWidth;
@@ -230,7 +262,7 @@ export default function AsciiBackdrop() {
         const scramble =
           rippleInfluence > cell.seed * 0.56 ||
           Math.sin(time * 0.0011 + cell.seed * 16) > 0.994;
-        const baseOpacity = (0.012 + cell.alpha * 0.04 + cell.mask * 0.78) * entrance;
+        const baseOpacity = (0.01 + cell.alpha * 0.032 + cell.mask * 0.86) * entrance;
         const opacity = Math.max(0, baseOpacity * (1 - dissolve) + rippleInfluence * 0.5);
         if (opacity < 0.012) continue;
 
