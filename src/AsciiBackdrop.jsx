@@ -195,10 +195,13 @@ export default function AsciiBackdrop() {
           const index = row * state.cols + col;
           const logoX = logoBounds ? (col - logoBounds.left) / logoBounds.width : -1;
           const logoY = logoBounds ? (row - logoBounds.top) / logoBounds.height : -1;
-          const isJawArea =
-            (logoY > 0.6 && logoX > 0.15 && logoX < 0.36) ||
-            (logoY > 0.5 && logoX > 0.83 && logoX < 0.97) ||
-            (logoY > 0.88 && logoX > 0.25 && logoX < 0.91);
+          const isLeftJaw =
+            logoY > 0.6 && logoX > 0.15 && logoX < 0.36;
+          const isRightJaw =
+            logoY > 0.5 && logoX > 0.83 && logoX < 0.97;
+          const isBottomJaw =
+            logoY > 0.86 && logoX > 0.22 && logoX < 0.93;
+          const isJawArea = isLeftJaw || isRightJaw || isBottomJaw;
           const isMouthArea =
             (logoX > 0.42 && logoX < 0.92 && logoY > 0.66 && logoY < 0.88) ||
             (logoX > 0.78 && logoX < 0.94 && logoY > 0.61 && logoY < 0.88);
@@ -235,13 +238,15 @@ export default function AsciiBackdrop() {
             );
             mask = rawMask > 0.08 && boundaryStrength > 0.08 ? 1 : 0;
           } else if (isJawArea) {
+            const leftBoundary = isLeftJaw ? rawMask - maskAt(row, col - 1) : 0;
+            const rightBoundary = isRightJaw ? rawMask - maskAt(row, col + 1) : 0;
+            const bottomBoundary = isBottomJaw ? rawMask - maskAt(row + 1, col) : 0;
             const boundaryStrength = Math.max(
-              rawMask - maskAt(row, col - 1),
-              rawMask - maskAt(row, col + 1),
-              rawMask - maskAt(row - 1, col),
-              rawMask - maskAt(row + 1, col),
+              leftBoundary,
+              rightBoundary,
+              bottomBoundary,
             );
-            mask = rawMask > 0.08 && boundaryStrength > 0.08 ? 1 : 0;
+            mask = rawMask > 0.05 && boundaryStrength > 0.03 ? 1 : 0;
           }
 
           if (mask < 0.06 && seededValue(index + 73) < 0.72) continue;
@@ -251,7 +256,7 @@ export default function AsciiBackdrop() {
           const baseChar = CLAIMS[claimIndex];
           let mouthChar = baseChar;
 
-          if (isMouthArea && mask > 0 && !/[A-Z0-9]/.test(mouthChar)) {
+          if ((isMouthArea || isJawArea) && mask > 0 && !/[A-Z0-9]/.test(mouthChar)) {
             for (let offset = 1; offset < CLAIMS.length; offset += 1) {
               const candidate = CLAIMS[(claimIndex + offset) % CLAIMS.length];
               if (/[A-Z0-9]/.test(candidate)) {
@@ -268,7 +273,7 @@ export default function AsciiBackdrop() {
             mask: Math.pow(mask, 0.72),
             fineDetail: isFineDetail && rawMask > 0.08,
             seed: seededValue(index + 401),
-            baseChar: isMouthArea && mask > 0 ? mouthChar : baseChar,
+            baseChar: (isMouthArea || isJawArea) && mask > 0 ? mouthChar : baseChar,
           });
         }
       }
