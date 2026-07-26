@@ -4,7 +4,7 @@ import GlobeCard from "./GlobeCard";
 import TravelMap from "./TravelMap";
 import TrainingPage from "./TrainingPage";
 import BooksPage from "./BooksPage";
-import TopographicCursor from "./TopographicCursor";
+import CurlyCursor from "./CurlyCursor";
 import brandLogo from "./assets/nm-logo.png";
 
 const pages = [
@@ -448,7 +448,7 @@ export default function App() {
 
   return (
     <div className="site-shell">
-      <TopographicCursor />
+      <CurlyCursor />
       <aside className={menuOpen ? "sidebar is-open" : "sidebar"}>
         <button className="mobile-close" onClick={() => setMenuOpen(false)} aria-label="Close menu">Close</button>
         <div className="monogram" aria-label="Nijat Mahmud">
