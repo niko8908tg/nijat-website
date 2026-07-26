@@ -258,7 +258,6 @@ function NowPage() {
 
 const stuffLinks = [
   ["books", "Books", "What I’ve been reading"],
-  ["stuff", "Gaming", "Video games that left a mark"],
   ["tools", "Tools", "Hardware and gear I use daily"],
   ["goals", "2026 Goals", "What I want to accomplish this year"],
 ];
