@@ -38,8 +38,8 @@ export default function AsciiBackdrop() {
       dpr: 1,
       cols: 0,
       rows: 0,
-      cellWidth: 9,
-      cellHeight: 15,
+      cellWidth: 6,
+      cellHeight: 10,
       rowStrings: [],
       modelCells: [],
       pointerX: -1000,
@@ -79,19 +79,29 @@ export default function AsciiBackdrop() {
           maskContext.fillStyle = "#fff";
           maskContext.fillRect(0, 0, state.cols, state.rows);
 
-          const maxWidth = state.cols * 0.72;
-          const maxHeight = state.rows * 0.86;
-          const imageAspect = logoImage.naturalWidth / logoImage.naturalHeight || 1;
-          let drawWidth = maxWidth;
-          let drawHeight = drawWidth / imageAspect;
+          const sourceX = logoImage.naturalWidth * 0.07;
+          const sourceY = logoImage.naturalHeight * 0.04;
+          const sourceWidth = logoImage.naturalWidth * 0.86;
+          const sourceHeight = logoImage.naturalHeight * 0.9;
+          const imageAspect = sourceWidth / sourceHeight || 1;
+          const maxPixelWidth = state.width * 0.82;
+          const maxPixelHeight = state.height * 0.92;
+          let drawPixelWidth = maxPixelWidth;
+          let drawPixelHeight = drawPixelWidth / imageAspect;
 
-          if (drawHeight > maxHeight) {
-            drawHeight = maxHeight;
-            drawWidth = drawHeight * imageAspect;
+          if (drawPixelHeight > maxPixelHeight) {
+            drawPixelHeight = maxPixelHeight;
+            drawPixelWidth = drawPixelHeight * imageAspect;
           }
 
+          const drawWidth = drawPixelWidth / state.cellWidth;
+          const drawHeight = drawPixelHeight / state.cellHeight;
           maskContext.drawImage(
             logoImage,
+            sourceX,
+            sourceY,
+            sourceWidth,
+            sourceHeight,
             (state.cols - drawWidth) / 2,
             (state.rows - drawHeight) / 2,
             drawWidth,
@@ -114,7 +124,7 @@ export default function AsciiBackdrop() {
               maskPixels[pixelIndex + 2]
             ) / (3 * 255)
             : 1;
-          const mask = Math.max(0, Math.min(1, (0.94 - luminance) / 0.84));
+          const mask = Math.max(0, Math.min(1, (0.78 - luminance) / 0.5));
           if (mask < 0.06 && seededValue(index + 73) < 0.72) continue;
 
           modelCells.push({
@@ -137,8 +147,8 @@ export default function AsciiBackdrop() {
       state.width = Math.max(1, Math.round(bounds.width));
       state.height = Math.max(1, Math.round(bounds.height));
       state.dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      state.cellWidth = state.width < 280 ? 8 : 9;
-      state.cellHeight = state.width < 280 ? 14 : 15;
+      state.cellWidth = state.width < 280 ? 5 : 6;
+      state.cellHeight = state.width < 280 ? 9 : 10;
       state.cols = Math.ceil(state.width / state.cellWidth);
       state.rows = Math.ceil(state.height / state.cellHeight);
 
@@ -173,8 +183,8 @@ export default function AsciiBackdrop() {
       context.clearRect(0, 0, state.width, state.height);
       context.textAlign = "left";
       context.textBaseline = "top";
-      context.font = `500 10px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
-      context.fillStyle = "rgba(222, 225, 226, 0.075)";
+      context.font = `500 8px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
+      context.fillStyle = "rgba(222, 225, 226, 0.065)";
 
       for (let row = 0; row < state.rows; row += 1) {
         context.fillText(state.rowStrings[row], 0, row * state.cellHeight);
@@ -190,7 +200,7 @@ export default function AsciiBackdrop() {
 
       context.textAlign = "center";
       context.textBaseline = "middle";
-      context.font = `600 10px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
+      context.font = `600 8px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
 
       for (const cell of state.modelCells) {
         const x = (cell.col + 0.5) * state.cellWidth;
@@ -220,11 +230,11 @@ export default function AsciiBackdrop() {
         const scramble =
           rippleInfluence > cell.seed * 0.56 ||
           Math.sin(time * 0.0011 + cell.seed * 16) > 0.994;
-        const baseOpacity = (0.012 + cell.alpha * 0.045 + cell.mask * 0.62) * entrance;
+        const baseOpacity = (0.012 + cell.alpha * 0.04 + cell.mask * 0.78) * entrance;
         const opacity = Math.max(0, baseOpacity * (1 - dissolve) + rippleInfluence * 0.5);
         if (opacity < 0.012) continue;
 
-        context.fillStyle = `rgba(232, 235, 235, ${Math.min(0.82, opacity)})`;
+        context.fillStyle = `rgba(232, 235, 235, ${Math.min(0.92, opacity)})`;
         context.fillText(glyphFor(cell, time, scramble), x, y);
       }
     }
