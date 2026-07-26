@@ -38,10 +38,13 @@ button { border: 0; }
 }
 
 .ascii-backdrop {
-  position: relative;
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: -1;
   display: block;
-  width: 100%;
-  height: 260px;
+  width: calc((100vw - 240px) / 2);
+  height: 100vh;
   pointer-events: none;
 }
 
@@ -331,6 +334,8 @@ main { margin-left: 240px; }
 
 /* Homepage — based on the supplied saved HTML */
 .home-page {
+  position: relative;
+  isolation: isolate;
   max-width: 1204px;
   padding-top: 70px;
   padding-bottom: 74px;
@@ -1267,17 +1272,13 @@ h1 {
   main { margin-left: 0; }
   .page { padding-left: 22px; padding-right: 22px; }
   .home-page { padding-top: 88px; }
+  .ascii-backdrop { width: 50vw; }
   .home-columns { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 580px) {
   h1 { font-size: 36px; }
   .home-intro { grid-template-columns: 1fr; }
-  .ascii-backdrop {
-    width: min(100%, 340px);
-    height: 220px;
-    justify-self: center;
-  }
   .intro-copy { font-size: 16px; }
   .home-block { margin-top: 62px; }
   .update-row { grid-template-columns: 1fr auto; gap: 12px; padding: 8px 0; }

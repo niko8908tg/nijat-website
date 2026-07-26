@@ -63,33 +63,18 @@ export default function AsciiBackdrop() {
       });
     }
 
-    function createModel() {
-      const modelCanvas = document.createElement("canvas");
-      modelCanvas.width = state.cols;
-      modelCanvas.height = state.rows;
-      const modelContext = modelCanvas.getContext("2d");
-      if (!modelContext) return;
-
-      modelContext.clearRect(0, 0, state.cols, state.rows);
-      modelContext.fillStyle = "#fff";
-      modelContext.textAlign = "center";
-      modelContext.textBaseline = "middle";
-      modelContext.font = `800 ${Math.max(18, Math.round(state.rows * 0.66))}px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
-      modelContext.fillText("NM", state.cols * 0.5, state.rows * 0.5);
-
-      const pixels = modelContext.getImageData(0, 0, state.cols, state.rows).data;
+    function createField() {
       const modelCells = [];
 
       for (let row = 0; row < state.rows; row += 1) {
         for (let col = 0; col < state.cols; col += 1) {
-          const alpha = pixels[(row * state.cols + col) * 4 + 3] / 255;
-          if (alpha <= 0.08) continue;
-
           const index = row * state.cols + col;
+          if (seededValue(index + 73) < 0.72) continue;
+
           modelCells.push({
             col,
             row,
-            alpha,
+            alpha: seededValue(index + 911),
             seed: seededValue(index + 401),
             baseChar:
               CLAIMS[(index + Math.floor(seededValue(row) * CLAIMS.length)) % CLAIMS.length],
@@ -114,7 +99,7 @@ export default function AsciiBackdrop() {
       canvas.height = Math.round(state.height * state.dpr);
       context.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
       createRows();
-      createModel();
+      createField();
       draw(performance.now());
     }
 
@@ -188,20 +173,13 @@ export default function AsciiBackdrop() {
         const scramble =
           rippleInfluence > cell.seed * 0.56 ||
           Math.sin(time * 0.0011 + cell.seed * 16) > 0.994;
-        const baseOpacity = (0.1 + cell.alpha * 0.42) * entrance;
+        const baseOpacity = (0.012 + cell.alpha * 0.045) * entrance;
         const opacity = Math.max(0, baseOpacity * (1 - dissolve) + rippleInfluence * 0.5);
         if (opacity < 0.012) continue;
 
         context.fillStyle = `rgba(232, 235, 235, ${Math.min(0.82, opacity)})`;
         context.fillText(glyphFor(cell, time, scramble), x, y);
       }
-
-      const markSize = Math.min(state.width * 0.32, state.height * 0.42);
-      context.textAlign = "center";
-      context.textBaseline = "middle";
-      context.font = `700 ${Math.max(42, markSize)}px "Space Grotesk", Arial, sans-serif`;
-      context.fillStyle = "rgba(244, 244, 242, 0.94)";
-      context.fillText("NM", centerX, centerY);
     }
 
     function frame(time) {
