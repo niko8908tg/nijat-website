@@ -6,63 +6,25 @@ import brainModelUrl from "./assets/brain.glb?url";
 const NODE_DENSITY = 0.5;
 const MAX_CONNECTIONS = 2;
 const CONNECTION_DISTANCE = 0.078;
-const COLORS = [0x963cbd, 0xff6f61, 0xc5299b, 0xfeae51];
 
 const nodeVertexShader = `
-  uniform vec3 uPointer;
-  uniform float uHover;
-
-  attribute vec3 aColor;
-  attribute float aRotation;
-  attribute float aSize;
-
-  varying vec3 vColor;
-
-  #define PI 3.14159265359
-
-  mat2 rotate2d(float angle) {
-    return mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
-  }
+  uniform float uPointSize;
 
   void main() {
-    vec4 nodePosition = instanceMatrix * vec4(position, 1.0);
-    float pointerDistance = distance(uPointer, nodePosition.xyz);
-    float influence = smoothstep(0.45, 0.1, pointerDistance);
-    float scale = aSize + influence * 8.0 * uHover;
-
-    vec3 transformed = position * scale;
-    transformed.xz *= rotate2d(
-      PI * influence * aRotation + PI * aRotation * 0.43
-    );
-    transformed.xy *= rotate2d(
-      PI * influence * aRotation + PI * aRotation * 0.71
-    );
-
-    vec4 modelPosition = instanceMatrix * vec4(transformed, 1.0);
-    gl_Position = projectionMatrix * modelViewMatrix * modelPosition;
-    vColor = aColor;
+    vec4 viewPosition = modelViewMatrix * vec4(position, 1.0);
+    gl_Position = projectionMatrix * viewPosition;
+    gl_PointSize = uPointSize;
   }
 `;
 
 const nodeFragmentShader = `
-  varying vec3 vColor;
-
   void main() {
-    gl_FragColor = vec4(vColor, 1.0);
+    float distanceFromCenter = distance(gl_PointCoord, vec2(0.5));
+    float alpha = 1.0 - smoothstep(0.38, 0.5, distanceFromCenter);
+    if (alpha < 0.01) discard;
+    gl_FragColor = vec4(1.0, 1.0, 1.0, alpha);
   }
 `;
-
-function seededRandom(seed = 1440) {
-  let state = seed;
-
-  return () => {
-    state += 0x6d2b79f5;
-    let value = state;
-    value = Math.imul(value ^ (value >>> 15), value | 1);
-    value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
-    return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
 function disposeModel(model) {
   model.traverse((child) => {
@@ -84,7 +46,6 @@ function createNetwork(nodes) {
   const cells = new Map();
   const connectionCounts = new Uint8Array(nodes.length);
   const positions = [];
-  const colors = [];
   const cellSize = CONNECTION_DISTANCE;
 
   nodes.forEach((node, index) => {
@@ -131,16 +92,6 @@ function createNetwork(nodes) {
           candidate.z,
         );
 
-        const brightness =
-          0.24 + (1 - distance / CONNECTION_DISTANCE) * 0.58;
-        colors.push(
-          brightness,
-          brightness,
-          brightness,
-          brightness,
-          brightness,
-          brightness,
-        );
         connectionCounts[index] += 1;
         connectionCounts[candidateIndex] += 1;
       });
@@ -151,10 +102,7 @@ function createNetwork(nodes) {
     cells.set(key, cell);
   });
 
-  return {
-    positions: new Float32Array(positions),
-    colors: new Float32Array(colors),
-  };
+  return new Float32Array(positions);
 }
 
 export default function BrainNetwork() {
@@ -173,9 +121,6 @@ export default function BrainNetwork() {
     let network = null;
     let networkGeometry = null;
     let networkMaterial = null;
-    let raycastMesh = null;
-    let targetHover = 0;
-    let currentHover = 0;
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, 1, 0.01, 20);
@@ -193,12 +138,7 @@ export default function BrainNetwork() {
     renderer.domElement.setAttribute("aria-hidden", "true");
     container.appendChild(renderer.domElement);
 
-    const raycaster = new THREE.Raycaster();
-    const pointer = new THREE.Vector2(4, 4);
-    const pointerTarget = new THREE.Vector3();
-    const pointerCurrent = new THREE.Vector3();
     const cameraTarget = new THREE.Vector2();
-    const color = new THREE.Color();
 
     const scheduleRender = () => {
       if (!animationFrame && isVisible) {
@@ -217,7 +157,6 @@ export default function BrainNetwork() {
     };
 
     const resetPointer = () => {
-      targetHover = 0;
       cameraTarget.set(0, 0);
       scheduleRender();
     };
@@ -230,24 +169,16 @@ export default function BrainNetwork() {
         event.clientY >= bounds.top &&
         event.clientY <= bounds.bottom;
 
-      if (!inside || !raycastMesh) {
+      if (!inside) {
         resetPointer();
         return;
       }
 
-      pointer.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
-      pointer.y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1;
-      cameraTarget.set(pointer.x * 0.2, pointer.y * 0.2);
-      camera.updateMatrixWorld();
-      raycaster.setFromCamera(pointer, camera);
-
-      const intersection = raycaster.intersectObject(raycastMesh, false)[0];
-      if (intersection) {
-        pointerTarget.copy(intersection.point);
-        targetHover = 1;
-      } else {
-        targetHover = 0;
-      }
+      const pointerX =
+        ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
+      const pointerY =
+        -((event.clientY - bounds.top) / bounds.height) * 2 + 1;
+      cameraTarget.set(pointerX * 0.2, pointerY * 0.2);
       scheduleRender();
     };
 
@@ -259,23 +190,12 @@ export default function BrainNetwork() {
       camera.position.y += (cameraTarget.y - camera.position.y) * 0.13;
       camera.lookAt(0, 0, 0);
 
-      if (nodeMaterial) {
-        currentHover += (targetHover - currentHover) * 0.13;
-        pointerCurrent.lerp(pointerTarget, 0.13);
-        nodeMaterial.uniforms.uHover.value = currentHover;
-        nodeMaterial.uniforms.uPointer.value.copy(pointerCurrent);
-      }
-
       renderer.render(scene, camera);
 
       const cameraMoving =
         Math.abs(cameraTarget.x - camera.position.x) > 0.0002 ||
         Math.abs(cameraTarget.y - camera.position.y) > 0.0002;
-      const hoverMoving = Math.abs(targetHover - currentHover) > 0.002;
-      const pointerMoving =
-        pointerCurrent.distanceToSquared(pointerTarget) > 0.000001;
-
-      if (cameraMoving || hoverMoving || pointerMoving) scheduleRender();
+      if (cameraMoving) scheduleRender();
     };
 
     const loader = new GLTFLoader();
@@ -300,29 +220,8 @@ export default function BrainNetwork() {
         const sourcePositions = brainGeometry.getAttribute("position");
         const nodeCount = Math.floor(sourcePositions.count * NODE_DENSITY);
         const nodePositions = [];
-
-        nodeGeometry = new THREE.BoxGeometry(0.004, 0.004, 0.004);
-        const rotations = new Float32Array(nodeCount);
-        const sizes = new Float32Array(nodeCount);
-        const colors = new Float32Array(nodeCount * 3);
-        const matrix = new THREE.Matrix4();
+        const nodePositionData = new Float32Array(nodeCount * 3);
         const position = new THREE.Vector3();
-        const random = seededRandom();
-
-        nodes = new THREE.InstancedMesh(
-          nodeGeometry,
-          new THREE.ShaderMaterial({
-            uniforms: {
-              uPointer: { value: pointerCurrent },
-              uHover: { value: 0 },
-            },
-            vertexShader: nodeVertexShader,
-            fragmentShader: nodeFragmentShader,
-            wireframe: true,
-          }),
-          nodeCount,
-        );
-        nodeMaterial = nodes.material;
 
         for (let index = 0; index < nodeCount; index += 1) {
           const sourceIndex = Math.floor(
@@ -330,48 +229,41 @@ export default function BrainNetwork() {
           );
           position.fromBufferAttribute(sourcePositions, sourceIndex);
           nodePositions.push(position.clone());
-          matrix.makeTranslation(position.x, position.y, position.z);
-          nodes.setMatrixAt(index, matrix);
-
-          rotations[index] = THREE.MathUtils.lerp(-1, 1, random());
-          sizes[index] = THREE.MathUtils.lerp(0.3, 3, random());
-          color.setHex(COLORS[Math.floor(random() * COLORS.length)]);
-          colors[index * 3] = color.r;
-          colors[index * 3 + 1] = color.g;
-          colors[index * 3 + 2] = color.b;
+          nodePositionData[index * 3] = position.x;
+          nodePositionData[index * 3 + 1] = position.y;
+          nodePositionData[index * 3 + 2] = position.z;
         }
 
+        nodeGeometry = new THREE.BufferGeometry();
         nodeGeometry.setAttribute(
-          "aRotation",
-          new THREE.InstancedBufferAttribute(rotations, 1),
+          "position",
+          new THREE.BufferAttribute(nodePositionData, 3),
         );
-        nodeGeometry.setAttribute(
-          "aSize",
-          new THREE.InstancedBufferAttribute(sizes, 1),
-        );
-        nodeGeometry.setAttribute(
-          "aColor",
-          new THREE.InstancedBufferAttribute(colors, 3),
-        );
-        nodes.instanceMatrix.needsUpdate = true;
+        nodeMaterial = new THREE.ShaderMaterial({
+          uniforms: {
+            uPointSize: { value: 2.4 * renderer.getPixelRatio() },
+          },
+          vertexShader: nodeVertexShader,
+          fragmentShader: nodeFragmentShader,
+          transparent: true,
+          depthWrite: false,
+          blending: THREE.AdditiveBlending,
+        });
+        nodes = new THREE.Points(nodeGeometry, nodeMaterial);
         nodes.frustumCulled = false;
         nodes.renderOrder = 2;
         scene.add(nodes);
 
-        const networkData = createNetwork(nodePositions);
+        const networkPositions = createNetwork(nodePositions);
         networkGeometry = new THREE.BufferGeometry();
         networkGeometry.setAttribute(
           "position",
-          new THREE.BufferAttribute(networkData.positions, 3),
-        );
-        networkGeometry.setAttribute(
-          "color",
-          new THREE.BufferAttribute(networkData.colors, 3),
+          new THREE.BufferAttribute(networkPositions, 3),
         );
         networkMaterial = new THREE.LineBasicMaterial({
-          vertexColors: true,
+          color: 0xffffff,
           transparent: true,
-          opacity: 0.72,
+          opacity: 0.48,
           depthWrite: false,
           blending: THREE.AdditiveBlending,
         });
@@ -379,15 +271,8 @@ export default function BrainNetwork() {
         network.renderOrder = 1;
         scene.add(network);
 
-        raycastMesh = new THREE.Mesh(
-          brainGeometry,
-          new THREE.MeshBasicMaterial({ side: THREE.DoubleSide }),
-        );
-        raycastMesh.updateMatrixWorld(true);
-        pointerTarget.set(0, 0, 0);
-        pointerCurrent.copy(pointerTarget);
-
         container.classList.add("is-ready");
+        brainGeometry.dispose();
         disposeModel(model.scene);
         scheduleRender();
       },
@@ -425,8 +310,6 @@ export default function BrainNetwork() {
       nodeMaterial?.dispose();
       networkGeometry?.dispose();
       networkMaterial?.dispose();
-      raycastMesh?.geometry.dispose();
-      raycastMesh?.material.dispose();
       renderer.dispose();
       renderer.domElement.remove();
     };
