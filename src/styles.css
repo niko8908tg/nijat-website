@@ -56,7 +56,7 @@ button { border: 0; }
   z-index: -1;
   display: block;
   width: calc((100vw - 240px) * .56);
-  height: clamp(360px, 58vh, 480px);
+  height: 100vh;
   pointer-events: none;
 }
 
