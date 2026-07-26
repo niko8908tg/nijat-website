@@ -291,23 +291,10 @@ const toolSections = [
   {
     title: "Workstation",
     items: [
-      ['MacBook Pro 14" M3', "Main machine for everything"],
-      ['49" Ultrawide Monitor', "One screen to rule them all"],
+      ["iPhone 15", "Everyday phone and camera"],
+      ['MacBook Air 13" M2', "Main machine for study and personal work"],
+      ["DELL G15", "Work computer"],
     ],
-  },
-  {
-    title: "Photography",
-    description:
-      "Sony a6400, mirrorless APS-C. Light enough to travel with, good enough to not compromise.",
-    items: [
-      ["Sony a6400", "Compact mirrorless body, great autofocus"],
-      ["Sigma 18-50mm f/2.8", "Travel zoom, covers most situations while keeping the bag light"],
-      ["Sigma 30mm f/1.4", "The everyday lens, great for street and low light"],
-      ["Sigma 16mm f/1.4", "Wide angle for landscapes and interiors"],
-      ["DJI Mini 2", "Lightweight drone for aerial shots"],
-      ["DJI Osmo Action 3", "Action camera for sports and travel"],
-    ],
-    link: true,
   },
   {
     title: "Running & Training",
