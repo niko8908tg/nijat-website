@@ -2,9 +2,9 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
-import brainPaths from "./assets/brain-paths.json";
 
-const PARTICLES_PER_CURVE = 10;
+const PARTICLES_PER_CURVE = 6;
+const TARGET_FRAME_INTERVAL = 1000 / 30;
 
 const tubeVertexShader = `
   uniform float uTime;
@@ -75,18 +75,118 @@ function seededRandom(seed = 1440) {
   };
 }
 
-function createCurves() {
-  return brainPaths.map((path) => {
-    const points = [];
+function createCurve(points, closed = false) {
+  return new THREE.CatmullRomCurve3(
+    points,
+    closed,
+    "catmullrom",
+    0.42,
+  );
+}
 
-    for (let index = 0; index < path.length; index += 3) {
+function createCurves() {
+  const random = seededRandom(721);
+  const curves = [];
+
+  [-1, 1].forEach((hemisphere) => {
+    [-0.028, 0, 0.028].forEach((depth, layer) => {
+      const outline = [];
+
+      for (let index = 0; index < 32; index += 1) {
+        const angle = (index / 32) * Math.PI * 2;
+        outline.push(
+          new THREE.Vector3(
+            hemisphere *
+              (0.047 +
+                0.047 * Math.cos(angle) +
+                0.004 * Math.sin(angle * 3 + layer)),
+            -0.006 +
+              0.101 * Math.sin(angle) +
+              0.005 * Math.sin(angle * 4 + layer),
+            depth + 0.01 * Math.sin(angle * 2 + layer),
+          ),
+        );
+      }
+
+      curves.push(createCurve(outline, true));
+    });
+
+    for (let strand = 0; strand < 10; strand += 1) {
+      const points = [];
+      const latitude = THREE.MathUtils.lerp(-0.72, 0.72, random());
+      const phase = random() * Math.PI * 2;
+      const turns = THREE.MathUtils.lerp(1.15, 1.9, random());
+
+      for (let index = 0; index < 22; index += 1) {
+        const progress = index / 21;
+        const angle = phase + progress * Math.PI * 2 * turns;
+        const normalizedY = THREE.MathUtils.clamp(
+          latitude +
+            Math.sin(angle * 0.72 + strand) * 0.18 +
+            Math.sin(progress * Math.PI * 2) * 0.08,
+          -0.88,
+          0.88,
+        );
+        const ring = Math.sqrt(1 - normalizedY * normalizedY);
+
+        points.push(
+          new THREE.Vector3(
+            hemisphere *
+              (0.046 +
+                0.047 * ring * Math.cos(angle) +
+                0.003 * Math.sin(angle * 3)),
+            0.003 + normalizedY * 0.105,
+            0.079 * ring * Math.sin(angle) +
+              0.006 * Math.cos(angle * 2 + strand),
+          ),
+        );
+      }
+
+      curves.push(createCurve(points));
+    }
+  });
+
+  for (let bridge = 0; bridge < 5; bridge += 1) {
+    const points = [];
+    const verticalOffset = (bridge - 2) * 0.017;
+
+    for (let index = 0; index < 18; index += 1) {
+      const progress = index / 17;
       points.push(
-        new THREE.Vector3(path[index], path[index + 1], path[index + 2]),
+        new THREE.Vector3(
+          THREE.MathUtils.lerp(-0.091, 0.091, progress),
+          0.004 +
+            verticalOffset +
+            Math.sin(progress * Math.PI) * (0.025 + bridge * 0.003),
+          (bridge - 2) * 0.011 +
+            Math.sin(progress * Math.PI * 2 + bridge) * 0.008,
+        ),
       );
     }
 
-    return new THREE.CatmullRomCurve3(points);
-  });
+    curves.push(createCurve(points));
+  }
+
+  for (let stem = 0; stem < 3; stem += 1) {
+    const points = [];
+    const offset = (stem - 1) * 0.009;
+
+    for (let index = 0; index < 14; index += 1) {
+      const progress = index / 13;
+      points.push(
+        new THREE.Vector3(
+          offset * (1 - progress) +
+            Math.sin(progress * Math.PI * 2 + stem) * 0.003,
+          -0.068 - progress * 0.066,
+          offset * 0.75 + Math.sin(progress * Math.PI) * 0.006,
+        ),
+      );
+    }
+
+    curves.push(createCurve(points));
+  }
+
+  return curves;
 }
 
 export default function BrainNetwork() {
@@ -106,7 +206,7 @@ export default function BrainNetwork() {
       powerPreference: "high-performance",
     });
     renderer.setClearColor(0x000000, 0);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.domElement.className = "brain-network-canvas";
     renderer.domElement.setAttribute("aria-hidden", "true");
@@ -125,7 +225,7 @@ export default function BrainNetwork() {
 
     const curves = createCurves();
     const separateTubeGeometries = curves.map(
-      (curve) => new THREE.TubeGeometry(curve, 64, 0.001, 2, false),
+      (curve) => new THREE.TubeGeometry(curve, 40, 0.001, 2, false),
     );
     const tubeGeometry = mergeGeometries(separateTubeGeometries, false);
     separateTubeGeometries.forEach((geometry) => geometry.dispose());
@@ -208,6 +308,7 @@ export default function BrainNetwork() {
     let animationFrame = 0;
     let isVisible = true;
     let previousTime = performance.now();
+    let previousRenderTime = 0;
 
     const resize = () => {
       const width = Math.max(1, container.clientWidth);
@@ -245,8 +346,12 @@ export default function BrainNetwork() {
     };
 
     const render = (time) => {
+      animationFrame = window.requestAnimationFrame(render);
+      if (time - previousRenderTime < TARGET_FRAME_INTERVAL) return;
+
       const delta = Math.min((time - previousTime) / 1000, 0.033);
       previousTime = time;
+      previousRenderTime = time;
 
       if (isVisible) {
         controls.update();
@@ -268,8 +373,6 @@ export default function BrainNetwork() {
 
         renderer.render(scene, camera);
       }
-
-      animationFrame = window.requestAnimationFrame(render);
     };
 
     const resizeObserver = new ResizeObserver(resize);
