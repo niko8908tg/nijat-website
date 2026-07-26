@@ -297,6 +297,15 @@ const toolSections = [
     ],
   },
   {
+    title: "Technical Stack",
+    items: [
+      ["Fragment", "Interface structure and layout"],
+      ["SvelteKit", "Web application framework"],
+      ["THREE.js", "Interactive 3D experiences"],
+      ["Vite", "Development and build tooling"],
+    ],
+  },
+  {
     title: "Running & Training",
     items: [
       ["Altra Running Shoes", "Zero-drop because I want strong calves and it feels natural"],
