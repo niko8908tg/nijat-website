@@ -369,12 +369,13 @@ main { margin-left: 240px; }
   align-items: stretch;
   gap: 0;
   min-height: 360px;
+  margin-left: var(--home-content-inset);
 }
 .home-intro-text {
   min-width: 0;
   padding-top: 70px;
   padding-right: 28px;
-  padding-left: var(--home-content-inset);
+  padding-left: 0;
 }
 h1 {
   margin: 0 0 28px;
