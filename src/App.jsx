@@ -303,6 +303,15 @@ const toolSections = [
       ["SvelteKit", "Web application framework"],
       ["THREE.js", "Interactive 3D experiences"],
       ["Vite", "Development and build tooling"],
+      [
+        "Neuromorphic Computing",
+        "SNNs, Loihi 2, event cameras, Address-Event Representation, Machine Learning",
+      ],
+      [
+        "Hardware Design & Verification",
+        "RTL design, Verilog/SystemVerilog, fixed-point arithmetic, timing closure, UVM-style verification, EDA & FPGA tools, Synopsys VCS/DC/PT",
+      ],
+      ["Programming", "Python, C, RISC-V Assembly, Tcl"],
     ],
   },
   {

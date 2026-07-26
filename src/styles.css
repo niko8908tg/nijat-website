@@ -621,7 +621,7 @@ h1 {
   min-height: 40px;
   padding: 8px 0;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto minmax(24px, 1fr) minmax(0, 58%);
   align-items: baseline;
   gap: 16px;
   color: #9b9b9b;
@@ -633,6 +633,7 @@ h1 {
 }
 .tool-row > span:last-child {
   font-size: 12px;
+  line-height: 1.45;
   text-align: right;
 }
 .tool-dot-line {
