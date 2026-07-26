@@ -303,15 +303,22 @@ const toolSections = [
       ["SvelteKit", "Web application framework"],
       ["THREE.js", "Interactive 3D experiences"],
       ["Vite", "Development and build tooling"],
-      [
-        "Neuromorphic Computing",
-        "SNNs, Loihi 2, event cameras, Address-Event Representation, Machine Learning",
-      ],
-      [
-        "Hardware Design & Verification",
-        "RTL design, Verilog/SystemVerilog, fixed-point arithmetic, timing closure, UVM-style verification, EDA & FPGA tools, Synopsys VCS/DC/PT",
-      ],
-      ["Programming", "Python, C, RISC-V Assembly, Tcl"],
+      ["SNNs"],
+      ["Loihi 2"],
+      ["Event Cameras"],
+      ["Address-Event Representation"],
+      ["Machine Learning"],
+      ["RTL Design"],
+      ["Verilog/SystemVerilog"],
+      ["Fixed-Point Arithmetic"],
+      ["Timing Closure"],
+      ["UVM-Style Verification"],
+      ["EDA & FPGA Tools"],
+      ["Synopsys VCS/DC/PT"],
+      ["Python"],
+      ["C"],
+      ["RISC-V Assembly"],
+      ["Tcl"],
     ],
   },
   {
@@ -326,10 +333,10 @@ const toolSections = [
 
 function ToolRow({ name, description }) {
   return (
-    <div className="tool-row">
+    <div className={`tool-row${description ? "" : " tool-row--solo"}`}>
       <strong>{name}</strong>
       <span className="tool-dot-line" aria-hidden="true" />
-      <span>{description}</span>
+      {description && <span>{description}</span>}
     </div>
   );
 }
