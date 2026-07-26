@@ -346,13 +346,17 @@ main { margin-left: 240px; }
 
 /* Homepage — based on the supplied saved HTML */
 .home-page {
+  --home-content-inset: max(
+    clamp(34px, 5vw, 72px),
+    calc((min(1204px, calc(100vw - 240px)) - 896px) / 2)
+  );
   position: relative;
   isolation: isolate;
   max-width: none;
   padding-top: 0;
   padding-right: 0;
   padding-bottom: 74px;
-  padding-left: 48px;
+  padding-left: 0;
 }
 .home-content {
   width: 100%;
@@ -369,7 +373,8 @@ main { margin-left: 240px; }
 .home-intro-text {
   min-width: 0;
   padding-top: 70px;
-  padding-right: 48px;
+  padding-right: 28px;
+  padding-left: var(--home-content-inset);
 }
 h1 {
   margin: 0 0 28px;
@@ -409,6 +414,10 @@ h1 {
 .contact-row svg .icon-fill { fill: currentColor; stroke: none; }
 .contact-row .separator { color: #444; }
 .home-block { margin-top: 72px; }
+.home-content > .home-block {
+  width: min(896px, calc(100% - var(--home-content-inset)));
+  margin-left: var(--home-content-inset);
+}
 .section-label {
   margin: 0 0 28px;
   color: #929292;
