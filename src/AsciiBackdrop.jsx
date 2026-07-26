@@ -50,7 +50,7 @@ export default function AsciiBackdrop() {
     };
 
     function createRows() {
-      const charactersPerRow = Math.ceil(state.width / 6) + 4;
+      const charactersPerRow = Math.ceil(state.width / 5) + 12;
       state.rowStrings = Array.from({ length: state.rows }, (_, row) => {
         const offset = Math.floor(seededValue(row + 17) * CLAIMS.length);
         let text = "";
