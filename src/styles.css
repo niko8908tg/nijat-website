@@ -134,7 +134,7 @@ button { border: 0; }
   top: 0;
   height: 1px;
   background: #ff9100;
-  box-shadow: 0 5px 16px rgba(255,145,0,.22);
+  box-shadow: 0 0 6px rgba(255,145,0,.22);
   animation: inspector-line-scan 3.4s ease-in-out infinite;
 }
 
