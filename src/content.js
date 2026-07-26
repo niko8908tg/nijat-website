@@ -28,11 +28,11 @@ export const books = [
 ];
 
 export const goals = [
-  "Publish a visual essay",
-  "Host a workshop",
-  "Read 24 books",
-  "Finish the archive",
-  "Start a poster series",
+  "Go boxing for 3+ months",
+  "Graduate",
+  "Earn a 3.3+ GPA",
+  "Get an internship",
+  "Earn $2,000+/month",
 ];
 
 export const quests = [

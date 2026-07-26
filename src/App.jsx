@@ -266,28 +266,20 @@ const stuffLinks = [
 ];
 
 const goals2026 = [
-  "Sub 20m 5k",
-  "Multi day hike",
-  "100kg x5 bench press",
-  "Front splits",
-  "Pancake",
-  "Master backstroke",
-  "Painless right hip",
-  "Fix click on left shoulder",
-  "Solo long day hike/run",
-  "Smooth handstand press",
-  "Master 3 knots",
-  "Pull up +45kg",
-  "Ultra race",
-  "5x Pistol squat",
-  "Surf a proper wave",
-  "Host and cook dinner for friends/family",
-  "Race abroad",
-  "100 Sleep score on Garmin",
-  "Coffee/beer with 5 internet friends",
-  "Learn to loud whistle",
-  "Memorize a poem",
-  "48h fast",
+  "Go boxing for 3+ months",
+  "Graduate",
+  "Earn a 3.3+ GPA",
+  "Get an internship",
+  "Earn $2,000+/month",
+  "Win DP",
+  "Choose a good university for my master's",
+  "Keep going to the gym",
+  "Stick to my routine 60% of the time",
+  "Visit one new country",
+  "Buy a watch",
+  "Finish 5+ books",
+  "Finish Deep Work",
+  "Remember birthdays",
 ];
 
 const toolSections = [
@@ -401,13 +393,13 @@ function GoalsPage() {
       <div className="goals-content">
         <header className="goals-heading">
           <h1>2026 Goals</h1>
-          <p>Trying to get strong, fast and flexible at the same time</p>
-          <p>1/22 completed</p>
+          <p>Study, work, health and life goals for the year</p>
+          <p>1/14 completed</p>
         </header>
 
         <div className="goals-grid">
           {goals2026.map((goal) => {
-            const completed = goal === "Pull up +45kg";
+            const completed = goal === "Finish Deep Work";
 
             return (
               <div
