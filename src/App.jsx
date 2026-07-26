@@ -459,7 +459,6 @@ export default function App() {
         <button className="mobile-close" onClick={() => setMenuOpen(false)} aria-label="Close menu">Close</button>
         <div className="monogram" aria-label="Nijat Mahmud">
           <img src={brandLogo} alt="" />
-          <span>NM</span>
         </div>
         <nav aria-label="Main navigation">
           {pages.map(([id, label]) => {
