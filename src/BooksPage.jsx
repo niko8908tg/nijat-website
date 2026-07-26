@@ -188,7 +188,6 @@ const books = [
 
 function BookCard({ book }) {
   const bookUrl = `https://www.goodreads.com/book/show/${book.id}`;
-  const reviewUrl = `https://www.goodreads.com/review/show/${book.reviewId}`;
   const filledStars = "★".repeat(book.rating);
   const emptyStars = "☆".repeat(5 - book.rating);
 
@@ -216,16 +215,7 @@ function BookCard({ book }) {
           {filledStars}
           <i>{emptyStars}</i>
         </span>
-        <small>{book.rating}/5</small>
       </div>
-      <a
-        className="goodreads-review-link"
-        href={reviewUrl}
-        target="_blank"
-        rel="noreferrer"
-      >
-        Review ↗
-      </a>
     </article>
   );
 }
