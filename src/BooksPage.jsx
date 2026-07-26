@@ -239,6 +239,17 @@ export default function BooksPage() {
   const currentlyReading = books.filter(
     (book) => book.status === "currently-reading"
   );
+  const finishedBooks = books.filter((book) => book.year);
+  const averageRating = (
+    finishedBooks.reduce((total, book) => total + book.rating, 0) /
+    finishedBooks.length
+  ).toFixed(1);
+  const overview = [
+    ["Total Books", books.length],
+    ["Books Read", finishedBooks.length],
+    ["Currently Reading", currentlyReading.length],
+    ["Average Rating", averageRating],
+  ];
 
   return (
     <section className="page books-page" aria-label="Books">
@@ -256,6 +267,27 @@ export default function BooksPage() {
             </a>
           </p>
         </header>
+
+        <section className="books-overview" aria-label="Reading overview">
+          <p>
+            Reading overview · via{" "}
+            <a
+              href="https://www.goodreads.com/user/show/202969002-nijat-mahmudov"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Goodreads
+            </a>
+          </p>
+          <div>
+            {overview.map(([label, value]) => (
+              <article key={label}>
+                <span>{label}</span>
+                <strong>{value}</strong>
+              </article>
+            ))}
+          </div>
+        </section>
 
         <BookSection title="Currently reading" items={currentlyReading} />
         {[2026, 2025, 2024].map((year) => (
