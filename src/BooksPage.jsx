@@ -1,226 +1,281 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import booksReference from "./references/books/page.html?raw";
-import booksReferenceStyles from "./references/books/reference.css?raw";
-import booksFontStyles from "./references/books/font.css?raw";
-import contentCover from "./assets/books/highlight-cover.jpg";
-
-const coverModules = import.meta.glob("./assets/books/covers/*.jpg", {
+const coverModules = import.meta.glob("./assets/books/goodreads/*.jpg", {
   eager: true,
   query: "?url",
   import: "default",
 });
 
-const FRAME_MESSAGE = "nicat-books-frame-height";
+const covers = Object.fromEntries(
+  Object.entries(coverModules).map(([path, url]) => [
+    path.split("/").pop().replace(".jpg", ""),
+    url,
+  ])
+);
 
-function replaceSavedCoverPaths(html) {
-  let result = html.replaceAll("./Books _ Pedro Araújo_files/content", contentCover);
+const books = [
+  {
+    id: "39286958",
+    title: "Measure What Matters",
+    author: "John Doerr",
+    rating: 3,
+    status: "currently-reading",
+    reviewId: "8802282934",
+  },
+  {
+    id: "170015",
+    title:
+      "Theoretical Neuroscience: Computational and Mathematical Modeling of Neural Systems",
+    author: "Peter Dayan",
+    rating: 4,
+    status: "currently-reading",
+    reviewId: "8802275011",
+  },
+  {
+    id: "27793819",
+    title: "Madonna in a Fur Coat",
+    author: "Sabahattin Ali",
+    rating: 5,
+    year: 2026,
+    reviewId: "8802279147",
+  },
+  {
+    id: "170448",
+    title: "Animal Farm",
+    author: "George Orwell",
+    rating: 4,
+    year: 2026,
+    reviewId: "8802278728",
+  },
+  {
+    id: "61439040",
+    title: "1984",
+    author: "George Orwell",
+    rating: 4,
+    year: 2026,
+    reviewId: "8802278610",
+  },
+  {
+    id: "194746",
+    title: "No Longer Human",
+    author: "Osamu Dazai",
+    rating: 4,
+    year: 2026,
+    reviewId: "8802278074",
+  },
+  {
+    id: "12483882",
+    title: "Schoolgirl",
+    author: "Osamu Dazai",
+    rating: 4,
+    year: 2026,
+    reviewId: "8802277878",
+  },
+  {
+    id: "69571",
+    title:
+      "Rich Dad Poor Dad: What the Rich Teach Their Kids About Money—That the Poor and Middle Class Do Not!",
+    author: "Robert T. Kiyosaki",
+    rating: 4,
+    year: 2025,
+    reviewId: "8802273959",
+  },
+  {
+    id: "30186948",
+    title: "Think and Grow Rich",
+    author: "Napoleon Hill",
+    rating: 3,
+    year: 2025,
+    reviewId: "8802273507",
+  },
+  {
+    id: "1303",
+    title: "The 48 Laws of Power",
+    author: "Robert Greene",
+    rating: 4,
+    year: 2025,
+    reviewId: "8802273455",
+  },
+  {
+    id: "40121378",
+    title:
+      "Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones",
+    author: "James Clear",
+    rating: 4,
+    year: 2025,
+    reviewId: "8802273408",
+  },
+  {
+    id: "4865",
+    title: "How to Win Friends & Influence People",
+    author: "Dale Carnegie",
+    rating: 5,
+    year: 2025,
+    reviewId: "8802273366",
+  },
+  {
+    id: "41881472",
+    title:
+      "The Psychology of Money: Timeless Lessons on Wealth, Greed, and Happiness",
+    author: "Morgan Housel",
+    rating: 4,
+    year: 2025,
+    reviewId: "8802273316",
+  },
+  {
+    id: "25744928",
+    title: "Deep Work: Rules for Focused Success in a Distracted World",
+    author: "Cal Newport",
+    rating: 4,
+    year: 2025,
+    reviewId: "8802273197",
+  },
+  {
+    id: "11029733",
+    title: "İnsan Ne İle Yaşar?",
+    author: "Leo Tolstoy",
+    rating: 5,
+    year: 2024,
+    reviewId: "8802271799",
+  },
+  {
+    id: "15823480",
+    title: "Anna Karenina",
+    author: "Leo Tolstoy",
+    rating: 4,
+    year: 2024,
+    reviewId: "8802271433",
+  },
+  {
+    id: "12857",
+    title: "The Gambler",
+    author: "Fyodor Dostoevsky",
+    rating: 4,
+    year: 2024,
+    reviewId: "8802271011",
+  },
+  {
+    id: "12505",
+    title: "The Idiot",
+    author: "Fyodor Dostoevsky",
+    rating: 4,
+    year: 2024,
+    reviewId: "8802270790",
+  },
+  {
+    id: "49455",
+    title: "Notes from Underground",
+    author: "Fyodor Dostoevsky",
+    rating: 4,
+    year: 2024,
+    reviewId: "8802270678",
+  },
+  {
+    id: "4934",
+    title: "The Brothers Karamazov",
+    author: "Fyodor Dostoevsky",
+    rating: 4,
+    year: 2024,
+    reviewId: "8802270495",
+  },
+  {
+    id: "7144",
+    title: "Crime and Punishment",
+    author: "Fyodor Dostoevsky",
+    rating: 5,
+    year: 2024,
+    reviewId: "8802270357",
+  },
+];
 
-  Object.entries(coverModules).forEach(([path, url]) => {
-    const filename = path.split("/").pop();
-    result = result.replaceAll(`./Books _ Pedro Araújo_files/${filename}`, url);
-  });
+function BookCard({ book }) {
+  const bookUrl = `https://www.goodreads.com/book/show/${book.id}`;
+  const reviewUrl = `https://www.goodreads.com/review/show/${book.reviewId}`;
+  const filledStars = "★".repeat(book.rating);
+  const emptyStars = "☆".repeat(5 - book.rating);
 
-  return result;
+  return (
+    <article className="goodreads-book-card">
+      <a
+        className="goodreads-book-card-link"
+        href={bookUrl}
+        target="_blank"
+        rel="noreferrer"
+        aria-label={`${book.title} on Goodreads`}
+      />
+      <img
+        className="goodreads-book-cover"
+        src={covers[book.id]}
+        alt={`${book.title} cover`}
+      />
+      <h3>{book.title}</h3>
+      <p>{book.author}</p>
+      <div
+        className="goodreads-book-rating"
+        aria-label={`${book.rating} out of 5 stars`}
+      >
+        <span>
+          {filledStars}
+          <i>{emptyStars}</i>
+        </span>
+        <small>{book.rating}/5</small>
+      </div>
+      <a
+        className="goodreads-review-link"
+        href={reviewUrl}
+        target="_blank"
+        rel="noreferrer"
+      >
+        Review ↗
+      </a>
+    </article>
+  );
 }
 
-function createBooksDocument() {
-  const cleanedReference = replaceSavedCoverPaths(booksReference)
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(
-      /<link[^>]+(?:href="\.\/Books _ Pedro Araújo_files\/[^"]+"|href="chrome-extension:\/\/[^"]+")[^>]*>/g,
-      ""
-    );
-
-  const frameStyles = `
-    <style>
-      ${booksFontStyles}
-      ${booksReferenceStyles}
-
-      html.dark,
-      html.dark body {
-        background: #191919 !important;
-      }
-
-      html,
-      body {
-        --font-mono: "Space Grotesk", sans-serif;
-        min-width: 0 !important;
-        overflow-x: hidden !important;
-        scrollbar-width: none;
-      }
-
-      body::-webkit-scrollbar {
-        display: none;
-      }
-
-      body > .min-h-screen.overflow-x-hidden > .mx-auto {
-        margin-left: auto !important;
-        margin-right: auto !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-      }
-    </style>
-  `;
-
-  const frameSetup = `
-    <script>
-      (() => {
-        const frameMessage = "${FRAME_MESSAGE}";
-
-        function prepareBooksPage() {
-          const booksIsland = document.querySelector(
-            'astro-island[component-url*="/Books."]'
-          );
-          const pageRoot = booksIsland?.closest(
-            ".min-h-screen.overflow-x-hidden"
-          );
-
-          if (!pageRoot) {
-            window.setTimeout(prepareBooksPage, 30);
-            return;
-          }
-
-          pageRoot.classList.remove("min-h-screen");
-          pageRoot.style.minHeight = "0";
-
-          const yearSections = [...pageRoot.querySelectorAll("section")].filter(
-            (section) => {
-              const year = Number(section.querySelector("h2")?.textContent.trim().slice(0, 4));
-              return Number.isInteger(year) && year >= 1900 && year <= 2026;
-            }
-          );
-          const currentYearSection = yearSections.find((section) =>
-            section.querySelector("h2")?.textContent.trim().startsWith("2026")
-          );
-          const currentlyReadingSection = [...pageRoot.querySelectorAll("section")].find(
-            (section) =>
-              section.querySelector("h2")?.textContent.trim().toUpperCase() ===
-              "CURRENTLY READING"
-          );
-          const remainingBookCount =
-            (currentYearSection?.querySelectorAll("a.group").length ?? 0) +
-            (currentlyReadingSection?.querySelectorAll("a.group").length ?? 0);
-
-          yearSections.forEach((section) => {
-            const year = Number(section.querySelector("h2")?.textContent.trim().slice(0, 4));
-            if (year <= 2025) section.remove();
-          });
-
-          const bookCountLine = [...pageRoot.querySelectorAll("p")].find(
-            (paragraph) =>
-              paragraph.textContent.includes("books") &&
-              paragraph.textContent.includes("Goodreads")
-          );
-          const bookCountBreak = bookCountLine?.querySelector("br");
-          const goodreadsLink = bookCountLine?.querySelector('a[href*="goodreads.com"]');
-          if (bookCountBreak && goodreadsLink) {
-            let node = bookCountBreak.nextSibling;
-            while (node && node !== goodreadsLink) {
-              const nextNode = node.nextSibling;
-              node.remove();
-              node = nextNode;
-            }
-            bookCountBreak.after(
-              document.createTextNode(remainingBookCount + " books · via ")
-            );
-          }
-
-          document.documentElement.classList.add("dark");
-          document.body.replaceChildren(pageRoot);
-
-          const reportHeight = () => {
-            const pageTop = pageRoot.getBoundingClientRect().top;
-            const contentBottom =
-              currentYearSection?.getBoundingClientRect().bottom ??
-              pageRoot.getBoundingClientRect().bottom;
-            const height = Math.ceil(contentBottom - pageTop + 64);
-            window.parent.postMessage({ type: frameMessage, height }, "*");
-          };
-
-          new ResizeObserver(reportHeight).observe(pageRoot);
-          window.addEventListener("resize", reportHeight);
-
-          window.addEventListener(
-            "wheel",
-            (event) => {
-              window.parent.scrollBy({
-                top: event.deltaY,
-                left: event.deltaX,
-                behavior: "auto"
-              });
-              event.preventDefault();
-            },
-            { passive: false }
-          );
-
-          let previousTouchY = null;
-          window.addEventListener(
-            "touchstart",
-            (event) => {
-              previousTouchY = event.touches[0]?.clientY ?? null;
-            },
-            { passive: true }
-          );
-          window.addEventListener(
-            "touchmove",
-            (event) => {
-              const currentTouchY = event.touches[0]?.clientY;
-              if (previousTouchY === null || currentTouchY === undefined) return;
-              window.parent.scrollBy(0, previousTouchY - currentTouchY);
-              previousTouchY = currentTouchY;
-              event.preventDefault();
-            },
-            { passive: false }
-          );
-          window.addEventListener("touchend", () => {
-            previousTouchY = null;
-          });
-
-          window.setTimeout(reportHeight, 0);
-          window.setTimeout(reportHeight, 300);
-          window.setTimeout(reportHeight, 1200);
-        }
-
-        prepareBooksPage();
-      })();
-    </script>
-  `;
-
-  return cleanedReference
-    .replace("</head>", `${frameStyles}</head>`)
-    .replace("</body>", `${frameSetup}</body>`);
+function BookSection({ title, items }) {
+  return (
+    <section className="goodreads-book-section">
+      <h2>
+        {title} <span>· {items.length} books</span>
+      </h2>
+      <div className="goodreads-book-grid">
+        {items.map((book) => (
+          <BookCard key={book.id} book={book} />
+        ))}
+      </div>
+    </section>
+  );
 }
 
 export default function BooksPage() {
-  const frameRef = useRef(null);
-  const [height, setHeight] = useState(600);
-  const source = useMemo(createBooksDocument, []);
-
-  useEffect(() => {
-    const receiveHeight = (event) => {
-      if (event.source !== frameRef.current?.contentWindow) return;
-      if (event.data?.type !== FRAME_MESSAGE) return;
-
-      const nextHeight = Number(event.data.height);
-      if (Number.isFinite(nextHeight) && nextHeight > 200) {
-        setHeight(nextHeight);
-      }
-    };
-
-    window.addEventListener("message", receiveHeight);
-    return () => window.removeEventListener("message", receiveHeight);
-  }, []);
+  const currentlyReading = books.filter(
+    (book) => book.status === "currently-reading"
+  );
 
   return (
     <section className="page books-page" aria-label="Books">
-      <iframe
-        ref={frameRef}
-        className="books-reference-frame"
-        title="Books"
-        srcDoc={source}
-        style={{ height }}
-        scrolling="no"
-      />
+      <div className="books-content">
+        <header className="books-heading">
+          <h1>Books</h1>
+          <p>
+            What I&apos;ve been reading.{" "}
+            <a
+              href="https://www.goodreads.com/user/show/202969002-nijat-mahmudov"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Goodreads ↗
+            </a>
+          </p>
+        </header>
+
+        <BookSection title="Currently reading" items={currentlyReading} />
+        {[2026, 2025, 2024].map((year) => (
+          <BookSection
+            key={year}
+            title={year}
+            items={books.filter((book) => book.year === year)}
+          />
+        ))}
+      </div>
     </section>
   );
 }
