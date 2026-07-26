@@ -138,6 +138,17 @@ function HomePage({ navigate }) {
         <p className="globe-current-label">Current Location</p>
         <GlobeCard />
       </div>
+
+      <section className="living-words-section" aria-label="Living Words animation">
+        <iframe
+          src="https://cdpn.io/pen/debug/jENEZZq"
+          title="Living Words by Alexandre Vacassin"
+          loading="lazy"
+          allow="fullscreen"
+          referrerPolicy="no-referrer"
+          tabIndex="-1"
+        />
+      </section>
       </div>
     </section>
   );
