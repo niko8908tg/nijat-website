@@ -43,8 +43,8 @@ button { border: 0; }
   right: 0;
   z-index: -1;
   display: block;
-  width: calc((100vw - 240px) / 2);
-  height: 100vh;
+  width: calc((100vw - 240px) * .56);
+  height: clamp(360px, 58vh, 480px);
   pointer-events: none;
 }
 
@@ -1272,7 +1272,7 @@ h1 {
   main { margin-left: 0; }
   .page { padding-left: 22px; padding-right: 22px; }
   .home-page { padding-top: 88px; }
-  .ascii-backdrop { width: 50vw; }
+  .ascii-backdrop { width: 56vw; }
   .home-columns { grid-template-columns: 1fr; }
 }
 
