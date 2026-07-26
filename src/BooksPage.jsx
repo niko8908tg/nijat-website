@@ -80,6 +80,9 @@ function createBooksDocument() {
             return;
           }
 
+          pageRoot.classList.remove("min-h-screen");
+          pageRoot.style.minHeight = "0";
+
           const yearSections = [...pageRoot.querySelectorAll("section")].filter(
             (section) => {
               const year = Number(section.querySelector("h2")?.textContent.trim().slice(0, 4));
@@ -126,13 +129,11 @@ function createBooksDocument() {
           document.body.replaceChildren(pageRoot);
 
           const reportHeight = () => {
-            const height = Math.ceil(
-              Math.max(
-                pageRoot.scrollHeight,
-                pageRoot.getBoundingClientRect().height,
-                document.documentElement.scrollHeight
-              )
-            );
+            const pageTop = pageRoot.getBoundingClientRect().top;
+            const contentBottom =
+              currentYearSection?.getBoundingClientRect().bottom ??
+              pageRoot.getBoundingClientRect().bottom;
+            const height = Math.ceil(contentBottom - pageTop + 64);
             window.parent.postMessage({ type: frameMessage, height }, "*");
           };
 
@@ -192,7 +193,7 @@ function createBooksDocument() {
 
 export default function BooksPage() {
   const frameRef = useRef(null);
-  const [height, setHeight] = useState(1000);
+  const [height, setHeight] = useState(600);
   const source = useMemo(createBooksDocument, []);
 
   useEffect(() => {
@@ -201,7 +202,7 @@ export default function BooksPage() {
       if (event.data?.type !== FRAME_MESSAGE) return;
 
       const nextHeight = Number(event.data.height);
-      if (Number.isFinite(nextHeight) && nextHeight > 500) {
+      if (Number.isFinite(nextHeight) && nextHeight > 200) {
         setHeight(nextHeight);
       }
     };

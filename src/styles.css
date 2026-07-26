@@ -766,7 +766,7 @@ h1 {
 .books-reference-frame {
   display: block;
   width: 100%;
-  min-height: 1000px;
+  min-height: 0;
   border: 0;
   background: transparent;
   overflow: hidden;
