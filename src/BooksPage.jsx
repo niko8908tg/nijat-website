@@ -52,6 +52,13 @@ function createBooksDocument() {
       body::-webkit-scrollbar {
         display: none;
       }
+
+      body > .min-h-screen.overflow-x-hidden > .mx-auto {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+      }
     </style>
   `;
 

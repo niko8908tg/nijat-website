@@ -452,7 +452,7 @@ h1 {
 .stuff-content {
   width: 100%;
   max-width: 896px;
-  margin: 0 auto;
+  margin: 0;
 }
 .stuff-heading {
   margin-bottom: 48px;
@@ -512,7 +512,7 @@ h1 {
 .goals-content {
   width: 100%;
   max-width: 896px;
-  margin: 0 auto;
+  margin: 0;
 }
 .goals-heading {
   margin-bottom: 32px;
@@ -565,7 +565,7 @@ h1 {
 .tools-content {
   width: 100%;
   max-width: 896px;
-  margin: 0 auto;
+  margin: 0;
 }
 .tools-heading {
   margin-bottom: 48px;
@@ -736,9 +736,10 @@ h1 {
 .placeholder-page { padding-top: 76px; }
 .training-page {
   width: 100%;
-  max-width: 1260px;
-  margin: 0 auto;
-  padding: 0;
+  max-width: none;
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 .training-reference-frame {
   display: block;
@@ -750,9 +751,10 @@ h1 {
 }
 .books-page {
   width: 100%;
-  max-width: 1260px;
-  margin: 0 auto;
-  padding: 0;
+  max-width: none;
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 .books-reference-frame {
   display: block;
@@ -881,8 +883,6 @@ h1 {
   main { margin-left: 0; }
   .page { padding-left: 22px; padding-right: 22px; }
   .home-page { padding-top: 88px; }
-  .training-page { padding: 0; }
-  .books-page { padding: 0; }
   .home-columns { grid-template-columns: 1fr; }
 }
 
