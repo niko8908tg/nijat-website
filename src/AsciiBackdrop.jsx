@@ -233,7 +233,7 @@ export default function AsciiBackdrop() {
               }
             }
 
-            if (component.length > 48) continue;
+            if (component.length > 14) continue;
 
             let centerRow = 0;
             let centerCol = 0;
@@ -246,6 +246,12 @@ export default function AsciiBackdrop() {
 
             const centerX = (centerCol - logoBounds.left) / logoBounds.width;
             const centerY = (centerRow - logoBounds.top) / logoBounds.height;
+            const isLeftEye =
+              centerX > 0.4 && centerX < 0.58 && centerY > 0.44 && centerY < 0.68;
+            const isNose =
+              centerX > 0.56 && centerX < 0.75 && centerY > 0.45 && centerY < 0.7;
+            if (isLeftEye || isNose) continue;
+
             const isUpperFacialHair =
               centerX > 0.48 && centerX < 0.82 && centerY > 0.58 && centerY < 0.72;
             const isLowerFacialHair =
