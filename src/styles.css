@@ -119,6 +119,17 @@ button { border: 0; }
   will-change: transform, opacity;
 }
 
+.inspector-accent-scan::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  background: #ff9100;
+  box-shadow: 0 0 5px rgba(255,145,0,.22);
+}
+
 .inspector-accent-counter {
   position: absolute;
   inset: 0;
