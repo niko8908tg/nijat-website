@@ -38,8 +38,8 @@ export default function AsciiBackdrop() {
       dpr: 1,
       cols: 0,
       rows: 0,
-      cellWidth: 6,
-      cellHeight: 10,
+      cellWidth: 4,
+      cellHeight: 7,
       rowStrings: [],
       modelCells: [],
       pointerX: -1000,
@@ -53,7 +53,7 @@ export default function AsciiBackdrop() {
     };
 
     function createRows() {
-      const charactersPerRow = Math.ceil(state.width / 5) + 12;
+      const charactersPerRow = Math.ceil(state.width / 4) + 12;
       state.rowStrings = Array.from({ length: state.rows }, (_, row) => {
         const offset = Math.floor(seededValue(row + 17) * CLAIMS.length);
         let text = "";
@@ -171,8 +171,8 @@ export default function AsciiBackdrop() {
       state.width = Math.max(1, Math.round(bounds.width));
       state.height = Math.max(1, Math.round(bounds.height));
       state.dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      state.cellWidth = state.width < 280 ? 5 : 6;
-      state.cellHeight = state.width < 280 ? 9 : 10;
+      state.cellWidth = state.width < 280 ? 3.5 : 4;
+      state.cellHeight = state.width < 280 ? 6 : 7;
       state.cols = Math.ceil(state.width / state.cellWidth);
       state.rows = Math.ceil(state.height / state.cellHeight);
 
@@ -207,7 +207,7 @@ export default function AsciiBackdrop() {
       context.clearRect(0, 0, state.width, state.height);
       context.textAlign = "left";
       context.textBaseline = "top";
-      context.font = `500 8px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
+      context.font = `500 6px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
       context.fillStyle = "rgba(222, 225, 226, 0.065)";
 
       for (let row = 0; row < state.rows; row += 1) {
@@ -224,7 +224,7 @@ export default function AsciiBackdrop() {
 
       context.textAlign = "center";
       context.textBaseline = "middle";
-      context.font = `600 8px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
+      context.font = `600 6px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
 
       for (const cell of state.modelCells) {
         const x = (cell.col + 0.5) * state.cellWidth;
