@@ -4,7 +4,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import brainModelUrl from "./assets/brain.glb?url";
 
 const COLORS = [0x963cbd, 0xff6f61, 0xc5299b, 0xfeae51];
-const NODE_DENSITY = 0.7;
+const NODE_DENSITY = 0.42;
 
 const vertexShader = `
   uniform vec3 uPointer;
