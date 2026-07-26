@@ -621,7 +621,7 @@ h1 {
   min-height: 40px;
   padding: 8px 0;
   display: grid;
-  grid-template-columns: auto minmax(24px, 1fr) minmax(0, 58%);
+  grid-template-columns: auto minmax(24px, 1fr) auto;
   align-items: baseline;
   gap: 16px;
   color: #9b9b9b;
