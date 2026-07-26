@@ -4,6 +4,51 @@ import * as THREE from "three";
 const PARTICLE_COUNT = 260;
 const MAX_CONNECTIONS = 5;
 const CONNECTION_DISTANCE = 0.4;
+const OUTLINE_PARTICLES = 86;
+const GROOVE_PARTICLES = 24;
+
+const BRAIN_OUTLINE = [
+  [0, 0.76],
+  [-0.1, 0.86],
+  [-0.22, 0.98],
+  [-0.43, 1.03],
+  [-0.62, 0.97],
+  [-0.74, 0.87],
+  [-0.91, 0.82],
+  [-1.05, 0.68],
+  [-1.07, 0.53],
+  [-1.17, 0.39],
+  [-1.19, 0.19],
+  [-1.11, 0.05],
+  [-1.14, -0.14],
+  [-1.04, -0.31],
+  [-0.98, -0.5],
+  [-0.81, -0.62],
+  [-0.68, -0.77],
+  [-0.48, -0.84],
+  [-0.31, -0.78],
+  [-0.18, -0.67],
+  [0, -0.72],
+  [0.18, -0.67],
+  [0.31, -0.78],
+  [0.48, -0.84],
+  [0.68, -0.77],
+  [0.81, -0.62],
+  [0.98, -0.5],
+  [1.04, -0.31],
+  [1.14, -0.14],
+  [1.11, 0.05],
+  [1.19, 0.19],
+  [1.17, 0.39],
+  [1.07, 0.53],
+  [1.05, 0.68],
+  [0.91, 0.82],
+  [0.74, 0.87],
+  [0.62, 0.97],
+  [0.43, 1.03],
+  [0.22, 0.98],
+  [0.1, 0.86],
+];
 
 function seededRandom(seed) {
   let value = seed;
@@ -17,45 +62,111 @@ function seededRandom(seed) {
   };
 }
 
+function isInsideBrain(x, y) {
+  let inside = false;
+
+  for (
+    let current = 0, previous = BRAIN_OUTLINE.length - 1;
+    current < BRAIN_OUTLINE.length;
+    previous = current, current += 1
+  ) {
+    const [currentX, currentY] = BRAIN_OUTLINE[current];
+    const [previousX, previousY] = BRAIN_OUTLINE[previous];
+    const crossesHorizontalRay =
+      currentY > y !== previousY > y &&
+      x <
+        ((previousX - currentX) * (y - currentY)) /
+          (previousY - currentY) +
+          currentX;
+
+    if (crossesHorizontalRay) inside = !inside;
+  }
+
+  return inside;
+}
+
+function getOutlinePoint(progress) {
+  const segmentLengths = [];
+  let perimeter = 0;
+
+  for (let index = 0; index < BRAIN_OUTLINE.length; index += 1) {
+    const current = BRAIN_OUTLINE[index];
+    const next = BRAIN_OUTLINE[(index + 1) % BRAIN_OUTLINE.length];
+    const length = Math.hypot(next[0] - current[0], next[1] - current[1]);
+    segmentLengths.push(length);
+    perimeter += length;
+  }
+
+  let distance = progress * perimeter;
+
+  for (let index = 0; index < segmentLengths.length; index += 1) {
+    if (distance <= segmentLengths[index]) {
+      const current = BRAIN_OUTLINE[index];
+      const next = BRAIN_OUTLINE[(index + 1) % BRAIN_OUTLINE.length];
+      const amount = distance / segmentLengths[index];
+      return [
+        THREE.MathUtils.lerp(current[0], next[0], amount),
+        THREE.MathUtils.lerp(current[1], next[1], amount),
+      ];
+    }
+    distance -= segmentLengths[index];
+  }
+
+  return BRAIN_OUTLINE[0];
+}
+
 function createBrainPoints() {
   const random = seededRandom(1440);
   const points = new Float32Array(PARTICLE_COUNT * 3);
   const phases = new Float32Array(PARTICLE_COUNT);
 
   for (let index = 0; index < PARTICLE_COUNT; index += 1) {
-    let x = 0;
-    let y = 0;
-    let z = 0;
-    let lengthSquared = 2;
+    let x;
+    let y;
+    let z;
 
-    while (lengthSquared > 1 || lengthSquared < 0.025) {
-      x = random() * 2 - 1;
-      y = random() * 2 - 1;
-      z = random() * 2 - 1;
-      lengthSquared = x * x + y * y + z * z;
+    if (index < OUTLINE_PARTICLES) {
+      const progress =
+        (index + (random() - 0.5) * 0.16) / OUTLINE_PARTICLES;
+      [x, y] = getOutlinePoint(
+        (progress + 1) % 1,
+      );
+      x *= 0.99 + random() * 0.018;
+      y *= 0.99 + random() * 0.018;
+      z = Math.sin(index * 0.91) * 0.045;
+    } else if (index < OUTLINE_PARTICLES + GROOVE_PARTICLES) {
+      const grooveIndex = index - OUTLINE_PARTICLES;
+      const side = grooveIndex % 2 === 0 ? -1 : 1;
+      const row = Math.floor(grooveIndex / 2);
+      const progress = row / (GROOVE_PARTICLES / 2 - 1);
+      y = THREE.MathUtils.lerp(-0.58, 0.78, progress);
+      x =
+        side *
+        (0.025 +
+          progress * 0.075 +
+          Math.sin(progress * Math.PI * 3) * 0.012);
+      z = (random() - 0.5) * 0.07;
+    } else {
+      do {
+        x = random() * 2.36 - 1.18;
+        y = random() * 1.84 - 0.82;
+      } while (
+        !isInsideBrain(x, y) ||
+        (y > -0.56 &&
+          Math.abs(x) < 0.045 + ((y + 0.56) / 1.55) * 0.055 &&
+          random() < 0.88)
+      );
+
+      const horizontalTaper = 1 - Math.min(0.72, Math.abs(x) / 1.2) * 0.28;
+      const verticalTaper =
+        1 - Math.min(0.72, Math.abs(y - 0.08) / 1.02) * 0.3;
+      const depth = 0.62 * horizontalTaper * verticalTaper;
+      z = (random() * 2 - 1) * depth;
     }
 
-    if (index % 3 === 0) {
-      const surfaceScale = (0.9 + random() * 0.1) / Math.sqrt(lengthSquared);
-      x *= surfaceScale;
-      y *= surfaceScale;
-      z *= surfaceScale;
-    }
-
-    const side = index % 2 === 0 ? -1 : 1;
-    const centralGroove = 0.045 + Math.max(0, y) * 0.055;
-    const lowerTaper =
-      y < -0.22 ? 1 - Math.min(0.24, (-y - 0.22) * 0.3) : 1;
-    const fold =
-      1 +
-      Math.sin(y * 11 + index * 0.37) *
-        Math.sin(z * 10 - index * 0.19) *
-        0.025;
-
-    points[index * 3] =
-      side * (centralGroove + Math.abs(x) * 1.12) * lowerTaper * fold;
-    points[index * 3 + 1] = y * 0.94;
-    points[index * 3 + 2] = z * 0.76 * fold;
+    points[index * 3] = x;
+    points[index * 3 + 1] = y;
+    points[index * 3 + 2] = z;
     phases[index] = random() * Math.PI * 2;
   }
 
@@ -85,7 +196,7 @@ export default function BrainNetwork() {
     container.appendChild(renderer.domElement);
 
     const group = new THREE.Group();
-    group.rotation.set(-0.08, -0.28, 0);
+    group.rotation.set(-0.04, 0, 0);
     scene.add(group);
 
     const { points: basePositions, phases } = createBrainPoints();
@@ -237,9 +348,10 @@ export default function BrainNetwork() {
               Math.sin(seconds * 0.46 + phase * 0.8) * 0.01;
           }
 
-          if (!isDragging) targetRotationY += 0.0011;
+          const idleRotation = isDragging ? 0 : Math.sin(seconds * 0.34) * 0.16;
           group.rotation.x += (targetRotationX - group.rotation.x) * 0.075;
-          group.rotation.y += (targetRotationY - group.rotation.y) * 0.075;
+          group.rotation.y +=
+            (targetRotationY + idleRotation - group.rotation.y) * 0.075;
           particleAttribute.needsUpdate = true;
         }
 
