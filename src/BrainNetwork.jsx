@@ -1,53 +1,51 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
-const PARTICLE_COUNT = 260;
-const MAX_CONNECTIONS = 5;
-const CONNECTION_DISTANCE = 0.4;
-const OUTLINE_PARTICLES = 86;
-const GROOVE_PARTICLES = 24;
+const PARTICLE_COUNT = 360;
+const SPARK_COUNT = 160;
+const MAX_CONNECTIONS = 7;
+const CONNECTION_DISTANCE = 0.34;
+const OUTLINE_PARTICLES = 112;
+const STEM_PARTICLES = 48;
+const MAX_TRIANGLES = 115;
 
 const BRAIN_OUTLINE = [
-  [0, 0.76],
-  [-0.1, 0.86],
-  [-0.22, 0.98],
-  [-0.43, 1.03],
-  [-0.62, 0.97],
-  [-0.74, 0.87],
-  [-0.91, 0.82],
-  [-1.05, 0.68],
-  [-1.07, 0.53],
-  [-1.17, 0.39],
-  [-1.19, 0.19],
-  [-1.11, 0.05],
-  [-1.14, -0.14],
-  [-1.04, -0.31],
-  [-0.98, -0.5],
-  [-0.81, -0.62],
-  [-0.68, -0.77],
-  [-0.48, -0.84],
-  [-0.31, -0.78],
-  [-0.18, -0.67],
-  [0, -0.72],
-  [0.18, -0.67],
-  [0.31, -0.78],
-  [0.48, -0.84],
-  [0.68, -0.77],
-  [0.81, -0.62],
-  [0.98, -0.5],
-  [1.04, -0.31],
-  [1.14, -0.14],
-  [1.11, 0.05],
-  [1.19, 0.19],
-  [1.17, 0.39],
-  [1.07, 0.53],
-  [1.05, 0.68],
-  [0.91, 0.82],
-  [0.74, 0.87],
-  [0.62, 0.97],
-  [0.43, 1.03],
-  [0.22, 0.98],
-  [0.1, 0.86],
+  [0.31, -1.34],
+  [0.2, -1.25],
+  [0.21, -1.08],
+  [0.16, -0.91],
+  [0.05, -0.75],
+  [-0.12, -0.64],
+  [-0.33, -0.6],
+  [-0.54, -0.52],
+  [-0.75, -0.42],
+  [-0.92, -0.25],
+  [-1.04, -0.04],
+  [-1.08, 0.18],
+  [-1.01, 0.38],
+  [-0.94, 0.57],
+  [-0.79, 0.76],
+  [-0.6, 0.92],
+  [-0.37, 1.03],
+  [-0.12, 1.08],
+  [0.12, 1.07],
+  [0.35, 1],
+  [0.55, 0.9],
+  [0.73, 0.75],
+  [0.9, 0.57],
+  [1, 0.37],
+  [1.04, 0.16],
+  [1, -0.03],
+  [0.93, -0.18],
+  [0.83, -0.29],
+  [0.72, -0.4],
+  [0.62, -0.48],
+  [0.51, -0.55],
+  [0.43, -0.65],
+  [0.41, -0.81],
+  [0.47, -0.98],
+  [0.49, -1.14],
+  [0.43, -1.29],
 ];
 
 function seededRandom(seed) {
@@ -134,33 +132,20 @@ function createBrainPoints() {
       x *= 0.99 + random() * 0.018;
       y *= 0.99 + random() * 0.018;
       z = Math.sin(index * 0.91) * 0.045;
-    } else if (index < OUTLINE_PARTICLES + GROOVE_PARTICLES) {
-      const grooveIndex = index - OUTLINE_PARTICLES;
-      const side = grooveIndex % 2 === 0 ? -1 : 1;
-      const row = Math.floor(grooveIndex / 2);
-      const progress = row / (GROOVE_PARTICLES / 2 - 1);
-      y = THREE.MathUtils.lerp(-0.58, 0.78, progress);
-      x =
-        side *
-        (0.025 +
-          progress * 0.075 +
-          Math.sin(progress * Math.PI * 3) * 0.012);
-      z = (random() - 0.5) * 0.07;
+    } else if (index < OUTLINE_PARTICLES + STEM_PARTICLES) {
+      do {
+        x = random() * 0.66 - 0.12;
+        y = random() * 0.84 - 1.34;
+      } while (!isInsideBrain(x, y));
+      z = (random() - 0.5) * 0.15;
     } else {
       do {
-        x = random() * 2.36 - 1.18;
-        y = random() * 1.84 - 0.82;
-      } while (
-        !isInsideBrain(x, y) ||
-        (y > -0.56 &&
-          Math.abs(x) < 0.045 + ((y + 0.56) / 1.55) * 0.055 &&
-          random() < 0.88)
-      );
+        x = random() * 2.12 - 1.08;
+        y = random() * 2.42 - 1.34;
+      } while (!isInsideBrain(x, y));
 
-      const horizontalTaper = 1 - Math.min(0.72, Math.abs(x) / 1.2) * 0.28;
-      const verticalTaper =
-        1 - Math.min(0.72, Math.abs(y - 0.08) / 1.02) * 0.3;
-      const depth = 0.62 * horizontalTaper * verticalTaper;
+      const edgeTaper = 1 - Math.min(0.78, Math.abs(x) / 1.1) * 0.22;
+      const depth = 0.22 * edgeTaper;
       z = (random() * 2 - 1) * depth;
     }
 
@@ -171,6 +156,104 @@ function createBrainPoints() {
   }
 
   return { points, phases };
+}
+
+function createSparkPoints() {
+  const random = seededRandom(721);
+  const points = new Float32Array(SPARK_COUNT * 3);
+
+  for (let index = 0; index < SPARK_COUNT; index += 1) {
+    let x;
+    let y;
+
+    do {
+      x = random() * 2.12 - 1.08;
+      y = random() * 2.42 - 1.34;
+    } while (!isInsideBrain(x, y));
+
+    points[index * 3] = x;
+    points[index * 3 + 1] = y;
+    points[index * 3 + 2] = (random() - 0.5) * 0.34;
+  }
+
+  return points;
+}
+
+function createTriangleIndices(positions) {
+  const random = seededRandom(972);
+  const triangles = [];
+  const knownTriangles = new Set();
+
+  for (
+    let center = 0;
+    center < PARTICLE_COUNT && triangles.length / 3 < MAX_TRIANGLES;
+    center += 1
+  ) {
+    const centerOffset = center * 3;
+    const neighbors = [];
+
+    for (let other = 0; other < PARTICLE_COUNT; other += 1) {
+      if (other === center) continue;
+      const otherOffset = other * 3;
+      const distance = Math.hypot(
+        positions[centerOffset] - positions[otherOffset],
+        positions[centerOffset + 1] - positions[otherOffset + 1],
+      );
+
+      if (distance < CONNECTION_DISTANCE * 1.22) {
+        neighbors.push({ index: other, distance });
+      }
+    }
+
+    neighbors.sort((first, second) => first.distance - second.distance);
+    const closest = neighbors.slice(0, 6);
+
+    for (
+      let first = 0;
+      first < closest.length - 1 &&
+      triangles.length / 3 < MAX_TRIANGLES;
+      first += 1
+    ) {
+      for (
+        let second = first + 1;
+        second < closest.length &&
+        triangles.length / 3 < MAX_TRIANGLES;
+        second += 1
+      ) {
+        if (random() > 0.2) continue;
+
+        const firstIndex = closest[first].index;
+        const secondIndex = closest[second].index;
+        const firstOffset = firstIndex * 3;
+        const secondOffset = secondIndex * 3;
+        const neighborDistance = Math.hypot(
+          positions[firstOffset] - positions[secondOffset],
+          positions[firstOffset + 1] - positions[secondOffset + 1],
+        );
+
+        if (neighborDistance > CONNECTION_DISTANCE * 1.18) continue;
+
+        const area = Math.abs(
+          (positions[firstOffset] - positions[centerOffset]) *
+            (positions[secondOffset + 1] - positions[centerOffset + 1]) -
+            (positions[firstOffset + 1] - positions[centerOffset + 1]) *
+              (positions[secondOffset] - positions[centerOffset]),
+        );
+        if (area < 0.004) continue;
+
+        const triangle = [center, firstIndex, secondIndex].sort(
+          (firstValue, secondValue) => firstValue - secondValue,
+        );
+        const key = triangle.join("-");
+        if (knownTriangles.has(key)) continue;
+
+        knownTriangles.add(key);
+        triangles.push(center, firstIndex, secondIndex);
+      }
+    }
+  }
+
+  return triangles;
 }
 
 export default function BrainNetwork() {
@@ -207,16 +290,74 @@ export default function BrainNetwork() {
     particleGeometry.setAttribute("position", particleAttribute);
 
     const particleMaterial = new THREE.PointsMaterial({
-      color: 0xd1d5d8,
-      size: 0.032,
+      color: 0xeaffff,
+      size: 0.029,
       sizeAttenuation: true,
       transparent: true,
-      opacity: 0.88,
+      opacity: 0.94,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
     const particles = new THREE.Points(particleGeometry, particleMaterial);
+    particles.renderOrder = 3;
     group.add(particles);
+
+    const sparkGeometry = new THREE.BufferGeometry();
+    sparkGeometry.setAttribute(
+      "position",
+      new THREE.BufferAttribute(createSparkPoints(), 3),
+    );
+    const sparkMaterial = new THREE.PointsMaterial({
+      color: 0xffffff,
+      size: 0.011,
+      sizeAttenuation: true,
+      transparent: true,
+      opacity: 0.68,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const sparks = new THREE.Points(sparkGeometry, sparkMaterial);
+    sparks.renderOrder = 2;
+    group.add(sparks);
+
+    const triangleIndices = createTriangleIndices(basePositions);
+    const facePositions = new Float32Array(triangleIndices.length * 3);
+    const faceColors = new Float32Array(triangleIndices.length * 3);
+    const faceRandom = seededRandom(305);
+
+    for (let vertex = 0; vertex < triangleIndices.length; vertex += 1) {
+      const sourceOffset = triangleIndices[vertex] * 3;
+      const targetOffset = vertex * 3;
+      const tone =
+        0.38 + Math.floor(vertex / 3) % 4 * 0.09 + faceRandom() * 0.08;
+
+      facePositions[targetOffset] = particlePositions[sourceOffset];
+      facePositions[targetOffset + 1] = particlePositions[sourceOffset + 1];
+      facePositions[targetOffset + 2] = particlePositions[sourceOffset + 2];
+      faceColors[targetOffset] = tone * 0.18;
+      faceColors[targetOffset + 1] = tone * 0.88;
+      faceColors[targetOffset + 2] = tone;
+    }
+
+    const faceGeometry = new THREE.BufferGeometry();
+    const facePositionAttribute = new THREE.BufferAttribute(facePositions, 3);
+    facePositionAttribute.setUsage(THREE.DynamicDrawUsage);
+    faceGeometry.setAttribute("position", facePositionAttribute);
+    faceGeometry.setAttribute(
+      "color",
+      new THREE.BufferAttribute(faceColors, 3),
+    );
+    const faceMaterial = new THREE.MeshBasicMaterial({
+      vertexColors: true,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.28,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const faces = new THREE.Mesh(faceGeometry, faceMaterial);
+    faces.renderOrder = 1;
+    group.add(faces);
 
     const maximumLineVertices = PARTICLE_COUNT * MAX_CONNECTIONS * 2;
     const linePositions = new Float32Array(maximumLineVertices * 3);
@@ -233,11 +374,12 @@ export default function BrainNetwork() {
     const lineMaterial = new THREE.LineBasicMaterial({
       vertexColors: true,
       transparent: true,
-      opacity: 0.42,
+      opacity: 0.62,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
     const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
+    lines.renderOrder = 2;
     group.add(lines);
 
     const connections = new Uint8Array(PARTICLE_COUNT);
@@ -299,8 +441,8 @@ export default function BrainNetwork() {
             particlePositions[firstOffset + 1];
           linePositions[firstLineOffset + 2] =
             particlePositions[firstOffset + 2];
-          lineColors[firstLineOffset] = brightness * 0.78;
-          lineColors[firstLineOffset + 1] = brightness * 0.84;
+          lineColors[firstLineOffset] = brightness * 0.2;
+          lineColors[firstLineOffset + 1] = brightness * 0.82;
           lineColors[firstLineOffset + 2] = brightness * 0.88;
           lineVertex += 1;
 
@@ -310,8 +452,8 @@ export default function BrainNetwork() {
             particlePositions[secondOffset + 1];
           linePositions[secondLineOffset + 2] =
             particlePositions[secondOffset + 2];
-          lineColors[secondLineOffset] = brightness * 0.78;
-          lineColors[secondLineOffset + 1] = brightness * 0.84;
+          lineColors[secondLineOffset] = brightness * 0.2;
+          lineColors[secondLineOffset + 1] = brightness * 0.82;
           lineColors[secondLineOffset + 2] = brightness * 0.88;
           lineVertex += 1;
         }
@@ -320,6 +462,17 @@ export default function BrainNetwork() {
       lineGeometry.setDrawRange(0, lineVertex);
       linePositionAttribute.needsUpdate = true;
       lineColorAttribute.needsUpdate = true;
+    };
+
+    const updateFaces = () => {
+      for (let vertex = 0; vertex < triangleIndices.length; vertex += 1) {
+        const sourceOffset = triangleIndices[vertex] * 3;
+        const targetOffset = vertex * 3;
+        facePositions[targetOffset] = particlePositions[sourceOffset];
+        facePositions[targetOffset + 1] = particlePositions[sourceOffset + 1];
+        facePositions[targetOffset + 2] = particlePositions[sourceOffset + 2];
+      }
+      facePositionAttribute.needsUpdate = true;
     };
 
     const resize = () => {
@@ -348,7 +501,7 @@ export default function BrainNetwork() {
               Math.sin(seconds * 0.46 + phase * 0.8) * 0.01;
           }
 
-          const idleRotation = isDragging ? 0 : Math.sin(seconds * 0.34) * 0.16;
+          const idleRotation = isDragging ? 0 : Math.sin(seconds * 0.34) * 0.07;
           group.rotation.x += (targetRotationX - group.rotation.x) * 0.075;
           group.rotation.y +=
             (targetRotationY + idleRotation - group.rotation.y) * 0.075;
@@ -356,6 +509,7 @@ export default function BrainNetwork() {
         }
 
         updateConnections();
+        updateFaces();
         renderer.render(scene, camera);
       }
 
@@ -404,6 +558,7 @@ export default function BrainNetwork() {
 
     resize();
     updateConnections();
+    updateFaces();
     renderer.render(scene, camera);
     animationFrame = window.requestAnimationFrame(render);
 
@@ -417,6 +572,10 @@ export default function BrainNetwork() {
       renderer.domElement.removeEventListener("pointercancel", endDrag);
       particleGeometry.dispose();
       particleMaterial.dispose();
+      sparkGeometry.dispose();
+      sparkMaterial.dispose();
+      faceGeometry.dispose();
+      faceMaterial.dispose();
       lineGeometry.dispose();
       lineMaterial.dispose();
       renderer.dispose();
