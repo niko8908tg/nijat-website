@@ -201,9 +201,11 @@ export default function AsciiBackdrop() {
             (logoY > 0.88 && logoX > 0.28 && logoX < 0.88);
           const isMouthArea =
             logoX > 0.41 && logoX < 0.89 && logoY > 0.61 && logoY < 0.85;
-          const isFineDetail =
-            (logoX > 0.61 && logoX < 0.78 && logoY > 0.42 && logoY < 0.61) ||
-            (logoX > 0.49 && logoX < 0.67 && logoY > 0.46 && logoY < 0.69);
+          const isRightEye =
+            logoX > 0.61 && logoX < 0.78 && logoY > 0.42 && logoY < 0.61;
+          const isNoseArea =
+            logoX > 0.49 && logoX < 0.67 && logoY > 0.46 && logoY < 0.69;
+          const isFineDetail = isRightEye || isNoseArea;
           const rawMask = maskAt(row, col);
           let mask = rawMask;
 
@@ -227,6 +229,7 @@ export default function AsciiBackdrop() {
             mask: Math.pow(mask, 0.72),
             fineDetail: isFineDetail && rawMask > 0.08,
             solidLine: (isJawArea || isMouthArea) && mask > 0,
+            solidNose: isNoseArea && rawMask > 0.08,
             seed: seededValue(index + 401),
             baseChar:
               CLAIMS[(index + Math.floor(seededValue(row) * CLAIMS.length)) % CLAIMS.length],
@@ -325,16 +328,21 @@ export default function AsciiBackdrop() {
         const scramble =
           rippleInfluence > cell.seed * 0.56 ||
           Math.sin(time * 0.0011 + cell.seed * 16) > 0.994;
+        const glyph = glyphFor(cell, time, scramble);
+        const isNormalContourGlyph =
+          cell.solidLine && (glyph === "H" || glyph === "C" || glyph === "O");
+        const isSolid = cell.solidNose || (cell.solidLine && !isNormalContourGlyph);
         const maskOpacity = cell.mask * (cell.fineDetail ? 0.94 : 0.78);
-        const baseOpacity = cell.solidLine
+        const baseOpacity = isSolid
           ? entrance
           : (0.012 + cell.alpha * 0.04 + maskOpacity) * entrance;
         const opacity = Math.max(0, baseOpacity * (1 - dissolve) + rippleInfluence * 0.5);
         if (opacity < 0.012) continue;
 
-        const tone = cell.solidLine ? 255 : cell.fineDetail ? 248 : 232;
-        context.fillStyle = `rgba(${tone}, ${tone}, ${tone}, ${Math.min(0.96, opacity)})`;
-        context.fillText(glyphFor(cell, time, scramble), x, y);
+        const tone = isSolid ? 255 : cell.fineDetail ? 248 : 232;
+        const drawOpacity = isSolid ? Math.min(1, opacity) : Math.min(0.96, opacity);
+        context.fillStyle = `rgba(${tone}, ${tone}, ${tone}, ${drawOpacity})`;
+        context.fillText(glyph, x, y);
       }
     }
 
