@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { books, goals, posters, profile, projects, quests, reviews, updates } from "./content";
 import GlobeCard from "./GlobeCard";
 import TravelMap from "./TravelMap";
@@ -48,45 +48,6 @@ function Icon({ name }) {
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path d="M5 17a2 2 0 0 1 2 2M5 11a8 8 0 0 1 8 8M5 5a14 14 0 0 1 14 14" />
     </svg>
-  );
-}
-
-function LivingWords() {
-  const sectionRef = useRef(null);
-
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return undefined;
-
-    const updateScale = () => {
-      section.style.setProperty(
-        "--living-words-scale",
-        String(section.clientWidth / 1000),
-      );
-    };
-
-    const observer = new ResizeObserver(updateScale);
-    observer.observe(section);
-    updateScale();
-
-    return () => observer.disconnect();
-  }, []);
-
-  return (
-    <section
-      ref={sectionRef}
-      className="living-words-section"
-      aria-label="Living Words animation"
-    >
-      <iframe
-        src="https://cdpn.io/pen/debug/jENEZZq"
-        title="Living Words by Alexandre Vacassin"
-        loading="lazy"
-        allow="fullscreen"
-        referrerPolicy="no-referrer"
-        tabIndex="-1"
-      />
-    </section>
   );
 }
 
@@ -177,8 +138,6 @@ function HomePage({ navigate }) {
         <p className="globe-current-label">Current Location</p>
         <GlobeCard />
       </div>
-
-      <LivingWords />
       </div>
     </section>
   );
