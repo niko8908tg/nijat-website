@@ -55,6 +55,8 @@ function HomePage({ navigate }) {
   return (
     <section className="home-page page">
       <div className="home-content">
+      <div className="home-intro">
+        <div className="home-intro-text">
         <h1>{profile.name}</h1>
         <div className="intro-copy">
           <p>{profile.intro}</p>
@@ -68,6 +70,9 @@ function HomePage({ navigate }) {
           <a className="contact-plain-link" href={`mailto:${profile.email}`}>{profile.email}</a>
           <a href={`mailto:${profile.email}`}>Send a message</a>
         </div>
+        </div>
+        <AsciiBackdrop />
+      </div>
 
       <section className="home-block updates">
         <p className="section-label">Recently updated</p>
@@ -448,7 +453,6 @@ export default function App() {
 
   return (
     <div className="site-shell">
-      <AsciiBackdrop />
       <CurlyCursor />
       <PageInspector pageKey={activePage} />
       <aside className={menuOpen ? "sidebar is-open" : "sidebar"}>

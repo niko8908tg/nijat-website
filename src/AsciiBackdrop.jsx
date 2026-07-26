@@ -3,8 +3,7 @@ import { useEffect, useRef } from "react";
 const CLAIMS =
   "NEUROMORPHIC COMPUTING · EVENT DRIVEN SYSTEMS · HARDWARE DESIGNED AND VERIFIED · " +
   "FPGA PIPELINES · SPIKING NEURAL NETWORKS · LOIHI 2 · EVENT CAMERAS · " +
-  "RISC V ASSEMBLY · PYTHON EXPERIMENTS · ISTANBUL LONDON BAKU · " +
-  "PROJECTS DOCUMENTED · NOTES IN MOTION · ";
+  "RISC V ASSEMBLY · PYTHON EXPERIMENTS · ";
 
 const ATLAS = " ·.ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/+*#@";
 const FRAME_INTERVAL = 1000 / 30;
@@ -36,31 +35,18 @@ export default function AsciiBackdrop() {
       dpr: 1,
       cols: 0,
       rows: 0,
-      cellWidth: 12,
-      cellHeight: 17,
-      rowStrings: [],
+      cellWidth: 9,
+      cellHeight: 15,
       modelCells: [],
       pointerX: -1000,
       pointerY: -1000,
       pointerActive: false,
       ripples: [],
-      transitionStarted: performance.now(),
+      entranceStarted: performance.now(),
       lastFrame: 0,
       raf: 0,
       visible: !document.hidden,
     };
-
-    function createRows() {
-      const charactersPerRow = Math.ceil(state.width / 6) + 4;
-      state.rowStrings = Array.from({ length: state.rows }, (_, row) => {
-        const offset = Math.floor(seededValue(row + 17) * CLAIMS.length);
-        let text = "";
-        for (let col = 0; col < charactersPerRow; col += 1) {
-          text += CLAIMS[(offset + col) % CLAIMS.length];
-        }
-        return text;
-      });
-    }
 
     function createModel() {
       const modelCanvas = document.createElement("canvas");
@@ -73,12 +59,8 @@ export default function AsciiBackdrop() {
       modelContext.fillStyle = "#fff";
       modelContext.textAlign = "center";
       modelContext.textBaseline = "middle";
-      modelContext.font = `800 ${Math.max(18, Math.round(state.rows * 0.48))}px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
-      modelContext.fillText(
-        "NM",
-        state.cols * (state.width < 820 ? 0.56 : 0.73),
-        state.rows * 0.48,
-      );
+      modelContext.font = `800 ${Math.max(18, Math.round(state.rows * 0.66))}px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
+      modelContext.fillText("NM", state.cols * 0.5, state.rows * 0.5);
 
       const pixels = modelContext.getImageData(0, 0, state.cols, state.rows).data;
       const modelCells = [];
@@ -86,16 +68,17 @@ export default function AsciiBackdrop() {
       for (let row = 0; row < state.rows; row += 1) {
         for (let col = 0; col < state.cols; col += 1) {
           const alpha = pixels[(row * state.cols + col) * 4 + 3] / 255;
-          if (alpha > 0.08) {
-            const index = row * state.cols + col;
-            modelCells.push({
-              col,
-              row,
-              alpha,
-              seed: seededValue(index + 401),
-              baseChar: CLAIMS[(index + Math.floor(seededValue(row) * CLAIMS.length)) % CLAIMS.length],
-            });
-          }
+          if (alpha <= 0.08) continue;
+
+          const index = row * state.cols + col;
+          modelCells.push({
+            col,
+            row,
+            alpha,
+            seed: seededValue(index + 401),
+            baseChar:
+              CLAIMS[(index + Math.floor(seededValue(row) * CLAIMS.length)) % CLAIMS.length],
+          });
         }
       }
 
@@ -103,21 +86,18 @@ export default function AsciiBackdrop() {
     }
 
     function resize() {
-      state.width = window.innerWidth;
-      state.height = window.innerHeight;
+      const bounds = canvas.getBoundingClientRect();
+      state.width = Math.max(1, Math.round(bounds.width));
+      state.height = Math.max(1, Math.round(bounds.height));
       state.dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      state.cellWidth = state.width < 640 ? 10 : 12;
-      state.cellHeight = state.width < 640 ? 15 : 17;
+      state.cellWidth = state.width < 280 ? 8 : 9;
+      state.cellHeight = state.width < 280 ? 14 : 15;
       state.cols = Math.ceil(state.width / state.cellWidth);
       state.rows = Math.ceil(state.height / state.cellHeight);
 
       canvas.width = Math.round(state.width * state.dpr);
       canvas.height = Math.round(state.height * state.dpr);
-      canvas.style.width = `${state.width}px`;
-      canvas.style.height = `${state.height}px`;
       context.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
-
-      createRows();
       createModel();
       draw(performance.now());
     }
@@ -129,7 +109,7 @@ export default function AsciiBackdrop() {
         started: performance.now(),
         strength: quiet ? 0.42 : 1,
       });
-      state.ripples = state.ripples.slice(-8);
+      state.ripples = state.ripples.slice(-6);
     }
 
     function glyphFor(cell, time, scramble) {
@@ -143,20 +123,12 @@ export default function AsciiBackdrop() {
       if (!state.width || !state.height) return;
 
       context.clearRect(0, 0, state.width, state.height);
-      context.textAlign = "left";
-      context.textBaseline = "top";
-      context.font = `500 10px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
-      context.fillStyle = "rgba(221, 225, 226, 0.045)";
 
-      for (let row = 0; row < state.rows; row += 1) {
-        context.fillText(state.rowStrings[row], 0, row * state.cellHeight);
-      }
-
-      const entranceAge = time - state.transitionStarted;
-      const entranceRadius = easeInOut(entranceAge / 1250) * Math.hypot(state.width, state.height);
-      const modelCenterX = state.width * (state.width < 820 ? 0.56 : 0.73);
-      const modelCenterY = state.height * 0.48;
-      const pointerRadius = Math.max(78, Math.min(132, state.width * 0.075));
+      const entranceAge = time - state.entranceStarted;
+      const entranceRadius = easeInOut(entranceAge / 1100) * Math.hypot(state.width, state.height);
+      const centerX = state.width * 0.5;
+      const centerY = state.height * 0.5;
+      const pointerRadius = Math.max(54, Math.min(92, state.width * 0.24));
       const activeRipples = state.ripples.filter((ripple) => time - ripple.started < 1800);
       state.ripples = activeRipples;
 
@@ -167,10 +139,10 @@ export default function AsciiBackdrop() {
       for (const cell of state.modelCells) {
         const x = (cell.col + 0.5) * state.cellWidth;
         const y = (cell.row + 0.5) * state.cellHeight;
-        const entranceDistance = Math.hypot(x - modelCenterX, y - modelCenterY);
+        const entranceDistance = Math.hypot(x - centerX, y - centerY);
         const entrance = reducedMotion
           ? 1
-          : Math.max(0, Math.min(1, (entranceRadius - entranceDistance + 90) / 90));
+          : Math.max(0, Math.min(1, (entranceRadius - entranceDistance + 70) / 70));
         if (entrance <= 0) continue;
 
         const pointerDistance = Math.hypot(x - state.pointerX, y - state.pointerY);
@@ -181,29 +153,23 @@ export default function AsciiBackdrop() {
         let rippleInfluence = 0;
         for (const ripple of activeRipples) {
           const age = (time - ripple.started) / 1800;
-          const radius = easeInOut(age) * Math.max(state.width, state.height) * 0.42;
+          const radius = easeInOut(age) * Math.max(state.width, state.height) * 0.72;
           const distance = Math.hypot(x - ripple.x, y - ripple.y);
-          const band = Math.max(0, 1 - Math.abs(distance - radius) / 34);
+          const band = Math.max(0, 1 - Math.abs(distance - radius) / 24);
           const life = Math.sin(Math.PI * Math.max(0, Math.min(1, age)));
           rippleInfluence = Math.max(rippleInfluence, band * life * ripple.strength);
         }
 
         const dissolve = pointerInfluence > cell.seed * 0.92 ? pointerInfluence : 0;
-        const scramble = rippleInfluence > cell.seed * 0.56 ||
+        const scramble =
+          rippleInfluence > cell.seed * 0.56 ||
           Math.sin(time * 0.0011 + cell.seed * 16) > 0.994;
-        const baseOpacity = (0.075 + cell.alpha * 0.34) * entrance;
+        const baseOpacity = (0.1 + cell.alpha * 0.42) * entrance;
         const opacity = Math.max(0, baseOpacity * (1 - dissolve) + rippleInfluence * 0.5);
         if (opacity < 0.012) continue;
 
-        context.fillStyle = `rgba(232, 235, 235, ${Math.min(0.78, opacity)})`;
+        context.fillStyle = `rgba(232, 235, 235, ${Math.min(0.82, opacity)})`;
         context.fillText(glyphFor(cell, time, scramble), x, y);
-      }
-
-      if (state.pointerActive) {
-        context.beginPath();
-        context.arc(state.pointerX, state.pointerY, 1.5, 0, Math.PI * 2);
-        context.fillStyle = "rgba(255,255,255,.55)";
-        context.fill();
       }
     }
 
@@ -216,23 +182,29 @@ export default function AsciiBackdrop() {
       state.raf = window.requestAnimationFrame(frame);
     }
 
-    function onPointerMove(event) {
-      state.pointerX = event.clientX;
-      state.pointerY = event.clientY;
-      state.pointerActive = true;
+    function localPointer(event) {
+      const bounds = canvas.getBoundingClientRect();
+      const x = event.clientX - bounds.left;
+      const y = event.clientY - bounds.top;
+      const inside = x >= 0 && x <= bounds.width && y >= 0 && y <= bounds.height;
+      return { x, y, inside };
     }
 
-    function onPointerLeave() {
-      state.pointerActive = false;
+    function onPointerMove(event) {
+      const pointer = localPointer(event);
+      state.pointerX = pointer.x;
+      state.pointerY = pointer.y;
+      state.pointerActive = pointer.inside;
     }
 
     function onPointerDown(event) {
-      addRipple(event.clientX, event.clientY);
+      const pointer = localPointer(event);
+      if (pointer.inside) addRipple(pointer.x, pointer.y);
     }
 
     function onHashChange() {
-      state.transitionStarted = performance.now();
-      addRipple(state.width * 0.7, state.height * 0.48, true);
+      state.entranceStarted = performance.now();
+      addRipple(state.width * 0.5, state.height * 0.5, true);
     }
 
     function onVisibilityChange() {
@@ -245,20 +217,19 @@ export default function AsciiBackdrop() {
       }
     }
 
+    const resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(canvas);
     resize();
     state.raf = window.requestAnimationFrame(frame);
-    window.addEventListener("resize", resize, { passive: true });
     window.addEventListener("pointermove", onPointerMove, { passive: true });
-    window.addEventListener("pointerleave", onPointerLeave);
     window.addEventListener("pointerdown", onPointerDown, { passive: true });
     window.addEventListener("hashchange", onHashChange);
     document.addEventListener("visibilitychange", onVisibilityChange);
 
     return () => {
       window.cancelAnimationFrame(state.raf);
-      window.removeEventListener("resize", resize);
+      resizeObserver.disconnect();
       window.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("pointerleave", onPointerLeave);
       window.removeEventListener("pointerdown", onPointerDown);
       window.removeEventListener("hashchange", onHashChange);
       document.removeEventListener("visibilitychange", onVisibilityChange);
