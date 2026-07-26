@@ -7,7 +7,8 @@ const CLAIMS =
   "RISC V ASSEMBLY · PYTHON EXPERIMENTS · ";
 
 const ATLAS = " ·.ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/+*#@";
-const FRAME_INTERVAL = 1000 / 30;
+const IDLE_FRAME_INTERVAL = 1000 / 30;
+const POINTER_FRAME_INTERVAL = 1000 / 12;
 
 function seededValue(index) {
   const value = Math.sin(index * 127.1 + 311.7) * 43758.5453;
@@ -99,6 +100,7 @@ export default function AsciiBackdrop() {
       pointerX: -1000,
       pointerY: -1000,
       pointerActive: false,
+      lastPointerMove: -Infinity,
       ripples: [],
       entranceStarted: performance.now(),
       lastFrame: 0,
@@ -441,7 +443,12 @@ export default function AsciiBackdrop() {
 
     function frame(time) {
       if (!state.visible) return;
-      if (time - state.lastFrame >= FRAME_INTERVAL) {
+      const pointerIsMoving = time - state.lastPointerMove < 140;
+      const frameInterval = pointerIsMoving
+        ? POINTER_FRAME_INTERVAL
+        : IDLE_FRAME_INTERVAL;
+
+      if (time - state.lastFrame >= frameInterval) {
         state.lastFrame = time;
         draw(time);
       }
@@ -461,6 +468,7 @@ export default function AsciiBackdrop() {
       state.pointerX = pointer.x;
       state.pointerY = pointer.y;
       state.pointerActive = pointer.inside;
+      state.lastPointerMove = performance.now();
     }
 
     function onPointerDown(event) {
