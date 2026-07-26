@@ -106,36 +106,24 @@ button { border: 0; }
 }
 
 .inspector-accent-map {
-  animation: inspector-map-scan 3.4s ease-in-out infinite;
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    #000 38%,
-    #000 62%,
-    transparent 100%
-  );
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-size: 100% 42%;
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    #000 38%,
-    #000 62%,
-    transparent 100%
-  );
-  mask-repeat: no-repeat;
-  mask-size: 100% 42%;
+  pointer-events: none;
 }
 
-.inspector-scan-line {
+.inspector-accent-scan {
   position: absolute;
-  right: 0;
-  left: 0;
-  top: 0;
-  height: 1px;
-  background: #ff9100;
-  box-shadow: 0 0 6px rgba(255,145,0,.22);
-  animation: inspector-line-scan 3.4s ease-in-out infinite;
+  inset: 0;
+  overflow: hidden;
+  animation: inspector-map-scan 5s ease-in-out infinite;
+  -webkit-mask-image: linear-gradient(to top, #000, transparent 60%);
+  mask-image: linear-gradient(to top, #000, transparent 60%);
+  will-change: transform, opacity;
+}
+
+.inspector-accent-counter {
+  position: absolute;
+  inset: 0;
+  animation: inspector-map-scan-counter 5s ease-in-out infinite;
+  will-change: transform;
 }
 
 .inspector-toggle {
@@ -244,19 +232,23 @@ button { border: 0; }
 }
 
 @keyframes inspector-map-scan {
-  0%, 8% {
-    -webkit-mask-position: 0 -44px;
-    mask-position: 0 -44px;
+  0% {
+    opacity: 1;
+    transform: translateY(-101%);
   }
-  92%, 100% {
-    -webkit-mask-position: 0 65px;
-    mask-position: 0 65px;
+  30% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  38%, 100% {
+    opacity: 0;
+    transform: translateY(0);
   }
 }
 
-@keyframes inspector-line-scan {
-  0%, 8% { transform: translateY(0); }
-  92%, 100% { transform: translateY(53px); }
+@keyframes inspector-map-scan-counter {
+  0% { transform: translateY(101%); }
+  30%, 100% { transform: translateY(0); }
 }
 
 .site-shell::after {
@@ -1346,6 +1338,5 @@ h1 {
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition-duration: .01ms !important; }
-  .inspector-accent-map,
-  .inspector-scan-line { animation: none !important; }
+  .inspector-accent-scan { display: none; }
 }

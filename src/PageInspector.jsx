@@ -313,8 +313,11 @@ export default function PageInspector({ pageKey }) {
       >
         <div className="inspector-preview" ref={previewRef} aria-hidden="true">
           <canvas ref={baseCanvasRef} />
-          <canvas className="inspector-accent-map" ref={accentCanvasRef} />
-          <span className="inspector-scan-line" />
+          <div className="inspector-accent-scan">
+            <div className="inspector-accent-counter">
+              <canvas className="inspector-accent-map" ref={accentCanvasRef} />
+            </div>
+          </div>
         </div>
         <button
           className="inspector-toggle"
