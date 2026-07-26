@@ -7,6 +7,7 @@ const CLAIMS =
   "RISC V ASSEMBLY · PYTHON EXPERIMENTS · ";
 
 const ATLAS = " ·.ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/+*#@";
+const SOLID_LINE_ATLAS = "MNHWXRK";
 const FRAME_INTERVAL = 1000 / 30;
 
 function seededValue(index) {
@@ -266,6 +267,14 @@ export default function AsciiBackdrop() {
     }
 
     function glyphFor(cell, time, scramble) {
+      if (cell.solidLine) {
+        const frameOffset = scramble ? Math.floor(time / 90) : 0;
+        const index = Math.floor(
+          seededValue(cell.seed * 1000 + frameOffset) * SOLID_LINE_ATLAS.length,
+        );
+        return SOLID_LINE_ATLAS[index] || "M";
+      }
+
       if (!scramble) return cell.baseChar;
       const frame = Math.floor(time / 54);
       const index = Math.floor(seededValue(cell.seed * 1000 + frame) * ATLAS.length);
