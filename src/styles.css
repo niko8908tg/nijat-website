@@ -345,27 +345,17 @@ main { margin-left: 240px; }
   width: 100%;
   height: 230px;
   overflow: hidden;
-  cursor: grab;
   touch-action: pan-y;
 }
-.brain-network.is-dragging { cursor: grabbing; }
 .brain-network-canvas {
   display: block;
   width: 100%;
   height: 100%;
+  opacity: 0;
   outline: none;
+  transition: opacity .35s ease;
 }
-.brain-network-hint {
-  position: absolute;
-  right: 4px;
-  bottom: 3px;
-  color: #5f6266;
-  font-size: 8px;
-  font-weight: 600;
-  letter-spacing: .11em;
-  text-transform: uppercase;
-  pointer-events: none;
-}
+.brain-network.is-ready .brain-network-canvas { opacity: 1; }
 h1 {
   margin: 0 0 28px;
   color: #d5d5d5;
