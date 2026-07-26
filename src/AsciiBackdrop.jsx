@@ -199,14 +199,15 @@ export default function AsciiBackdrop() {
             (logoY > 0.58 && logoX > 0.08 && logoX < 0.3) ||
             (logoY > 0.55 && logoX > 0.84 && logoX < 0.96) ||
             (logoY > 0.88 && logoX > 0.28 && logoX < 0.88);
+          const isMouthArea =
+            logoX > 0.41 && logoX < 0.89 && logoY > 0.61 && logoY < 0.85;
           const isFineDetail =
             (logoX > 0.61 && logoX < 0.78 && logoY > 0.42 && logoY < 0.61) ||
-            (logoX > 0.49 && logoX < 0.67 && logoY > 0.46 && logoY < 0.69) ||
-            (logoX > 0.62 && logoX < 0.88 && logoY > 0.61 && logoY < 0.84);
+            (logoX > 0.49 && logoX < 0.67 && logoY > 0.46 && logoY < 0.69);
           const rawMask = maskAt(row, col);
           let mask = rawMask;
 
-          if (isJawArea) {
+          if (isJawArea || isMouthArea) {
             const neighbors = [
               maskAt(row, col - 1),
               maskAt(row, col + 1),
@@ -214,7 +215,7 @@ export default function AsciiBackdrop() {
               maskAt(row + 1, col),
             ].sort((a, b) => b - a);
             const coreMask = neighbors[2];
-            mask = Math.min(rawMask, coreMask * 0.92 + rawMask * 0.12);
+            mask = rawMask > 0.08 && coreMask > 0.08 ? 1 : 0;
           }
 
           if (mask < 0.06 && seededValue(index + 73) < 0.72) continue;
@@ -225,6 +226,7 @@ export default function AsciiBackdrop() {
             alpha: seededValue(index + 911),
             mask: Math.pow(mask, 0.72),
             fineDetail: isFineDetail && rawMask > 0.08,
+            solidLine: (isJawArea || isMouthArea) && mask > 0,
             seed: seededValue(index + 401),
             baseChar:
               CLAIMS[(index + Math.floor(seededValue(row) * CLAIMS.length)) % CLAIMS.length],
@@ -324,11 +326,13 @@ export default function AsciiBackdrop() {
           rippleInfluence > cell.seed * 0.56 ||
           Math.sin(time * 0.0011 + cell.seed * 16) > 0.994;
         const maskOpacity = cell.mask * (cell.fineDetail ? 0.94 : 0.78);
-        const baseOpacity = (0.012 + cell.alpha * 0.04 + maskOpacity) * entrance;
+        const baseOpacity = cell.solidLine
+          ? entrance
+          : (0.012 + cell.alpha * 0.04 + maskOpacity) * entrance;
         const opacity = Math.max(0, baseOpacity * (1 - dissolve) + rippleInfluence * 0.5);
         if (opacity < 0.012) continue;
 
-        const tone = cell.fineDetail ? 248 : 232;
+        const tone = cell.solidLine ? 255 : cell.fineDetail ? 248 : 232;
         context.fillStyle = `rgba(${tone}, ${tone}, ${tone}, ${Math.min(0.96, opacity)})`;
         context.fillText(glyphFor(cell, time, scramble), x, y);
       }
