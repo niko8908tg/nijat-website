@@ -1,3 +1,9 @@
+import madonnaCover from "./assets/books/goodreads/27793819.jpg";
+import animalFarmCover from "./assets/books/goodreads/170448.jpg";
+import nineteenEightyFourCover from "./assets/books/goodreads/61439040.jpg";
+import noLongerHumanCover from "./assets/books/goodreads/194746.jpg";
+import schoolgirlCover from "./assets/books/goodreads/12483882.jpg";
+
 export const profile = {
   name: "Nijat Mahmud",
   intro: "This is where I share what I’ve been working on and what I’ve learned.",
@@ -14,11 +20,11 @@ export const updates = [
 ];
 
 export const books = [
-  { title: "What I Talk About When I Talk About Running", cover: "/books/2195464._SY400_.jpg" },
-  { title: "Sharpe’s Rifles", cover: "/books/360562._SY400_.jpg" },
-  { title: "Four Thousand Weeks", cover: "/books/54785515._SY400_.jpg" },
-  { title: "Around the World in Eighty Days", cover: "/books/54479._SY400_.jpg" },
-  { title: "Lonesome Dove", cover: "/books/256008._SY400_.jpg" },
+  { title: "Madonna in a Fur Coat", cover: madonnaCover },
+  { title: "Animal Farm", cover: animalFarmCover },
+  { title: "1984", cover: nineteenEightyFourCover },
+  { title: "No Longer Human", cover: noLongerHumanCover },
+  { title: "Schoolgirl", cover: schoolgirlCover },
 ];
 
 export const goals = [

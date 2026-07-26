@@ -106,7 +106,7 @@ function HomePage({ navigate }) {
               </article>
             ))}
           </div>
-          <button className="text-link" onClick={() => navigate("reviews")}>All books →</button>
+          <button className="text-link" onClick={() => navigate("books")}>All books →</button>
         </section>
       </div>
 
