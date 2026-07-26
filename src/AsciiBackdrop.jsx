@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import logoMaskSrc from "./assets/blacknici-mask.png";
 
 const CLAIMS =
   "NEUROMORPHIC COMPUTING · EVENT DRIVEN SYSTEMS · HARDWARE DESIGNED AND VERIFIED · " +
@@ -29,6 +30,8 @@ export default function AsciiBackdrop() {
     if (!context) return undefined;
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const logoImage = new Image();
+    let logoReady = false;
     const state = {
       width: 0,
       height: 0,
@@ -64,17 +67,61 @@ export default function AsciiBackdrop() {
     }
 
     function createField() {
+      let maskPixels = null;
+
+      if (logoReady) {
+        const maskCanvas = document.createElement("canvas");
+        maskCanvas.width = state.cols;
+        maskCanvas.height = state.rows;
+        const maskContext = maskCanvas.getContext("2d", { willReadFrequently: true });
+
+        if (maskContext) {
+          maskContext.fillStyle = "#fff";
+          maskContext.fillRect(0, 0, state.cols, state.rows);
+
+          const maxWidth = state.cols * 0.72;
+          const maxHeight = state.rows * 0.86;
+          const imageAspect = logoImage.naturalWidth / logoImage.naturalHeight || 1;
+          let drawWidth = maxWidth;
+          let drawHeight = drawWidth / imageAspect;
+
+          if (drawHeight > maxHeight) {
+            drawHeight = maxHeight;
+            drawWidth = drawHeight * imageAspect;
+          }
+
+          maskContext.drawImage(
+            logoImage,
+            (state.cols - drawWidth) / 2,
+            (state.rows - drawHeight) / 2,
+            drawWidth,
+            drawHeight,
+          );
+          maskPixels = maskContext.getImageData(0, 0, state.cols, state.rows).data;
+        }
+      }
+
       const modelCells = [];
 
       for (let row = 0; row < state.rows; row += 1) {
         for (let col = 0; col < state.cols; col += 1) {
           const index = row * state.cols + col;
-          if (seededValue(index + 73) < 0.72) continue;
+          const pixelIndex = index * 4;
+          const luminance = maskPixels
+            ? (
+              maskPixels[pixelIndex] +
+              maskPixels[pixelIndex + 1] +
+              maskPixels[pixelIndex + 2]
+            ) / (3 * 255)
+            : 1;
+          const mask = Math.max(0, Math.min(1, (0.94 - luminance) / 0.84));
+          if (mask < 0.06 && seededValue(index + 73) < 0.72) continue;
 
           modelCells.push({
             col,
             row,
             alpha: seededValue(index + 911),
+            mask: Math.pow(mask, 0.72),
             seed: seededValue(index + 401),
             baseChar:
               CLAIMS[(index + Math.floor(seededValue(row) * CLAIMS.length)) % CLAIMS.length],
@@ -173,7 +220,7 @@ export default function AsciiBackdrop() {
         const scramble =
           rippleInfluence > cell.seed * 0.56 ||
           Math.sin(time * 0.0011 + cell.seed * 16) > 0.994;
-        const baseOpacity = (0.012 + cell.alpha * 0.045) * entrance;
+        const baseOpacity = (0.012 + cell.alpha * 0.045 + cell.mask * 0.62) * entrance;
         const opacity = Math.max(0, baseOpacity * (1 - dissolve) + rippleInfluence * 0.5);
         if (opacity < 0.012) continue;
 
@@ -227,6 +274,13 @@ export default function AsciiBackdrop() {
     }
 
     const resizeObserver = new ResizeObserver(resize);
+    logoImage.decoding = "async";
+    logoImage.onload = () => {
+      logoReady = true;
+      createField();
+      draw(performance.now());
+    };
+    logoImage.src = logoMaskSrc;
     resizeObserver.observe(canvas);
     resize();
     state.raf = window.requestAnimationFrame(frame);
@@ -238,6 +292,7 @@ export default function AsciiBackdrop() {
     return () => {
       window.cancelAnimationFrame(state.raf);
       resizeObserver.disconnect();
+      logoImage.onload = null;
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerdown", onPointerDown);
       window.removeEventListener("hashchange", onHashChange);

@@ -17,6 +17,7 @@
 
 * { box-sizing: border-box; }
 html {
+  overflow-x: clip;
   scroll-behavior: smooth;
   scrollbar-color: #858585 transparent;
   scrollbar-width: thin;
@@ -30,6 +31,7 @@ html::-webkit-scrollbar-thumb {
 body {
   margin: 0;
   min-width: 320px;
+  overflow-x: clip;
   background-color: var(--bg);
   background-image: radial-gradient(circle, rgba(255,255,255,.035) .7px, transparent .8px);
   background-size: 24px 24px;
