@@ -273,8 +273,10 @@ export default function AsciiBackdrop() {
 
           const logoX = logoBounds ? (col - logoBounds.left) / logoBounds.width : -1;
           const logoY = logoBounds ? (row - logoBounds.top) / logoBounds.height : -1;
+          const isLeftEar =
+            logoX > 0.08 && logoX < 0.3 && logoY > 0.66 && logoY < 0.9;
           const isLeftJaw =
-            logoY > 0.68 && logoX > 0.14 && logoX < 0.38;
+            !isLeftEar && logoY > 0.68 && logoX > 0.14 && logoX < 0.38;
           const isRightJaw =
             logoY > 0.62 && logoX > 0.81 && logoX < 0.98;
           const isBottomJaw =
@@ -322,6 +324,7 @@ export default function AsciiBackdrop() {
             alpha: seededValue(index + 911),
             mask: Math.pow(mask, 0.72),
             emphasizedDetail: (isNose || isRightBrow) && rawMask > 0.08,
+            leftEarDetail: isLeftEar && rawMask > 0.08,
             seed: seededValue(index + 401),
             baseChar: isJawArea && mask > 0 ? jawChar : baseChar,
           });
@@ -419,7 +422,8 @@ export default function AsciiBackdrop() {
         const scramble =
           rippleInfluence > cell.seed * 0.56 ||
           Math.sin(time * 0.0011 + cell.seed * 16) > 0.994;
-        const maskOpacity = cell.mask * (cell.emphasizedDetail ? 0.98 : 0.78);
+        const maskOpacity =
+          cell.mask * (cell.emphasizedDetail ? 0.98 : cell.leftEarDetail ? 0.88 : 0.78);
         const baseOpacity = (0.012 + cell.alpha * 0.04 + maskOpacity) * entrance;
         const opacity = Math.max(0, baseOpacity * (1 - dissolve) + rippleInfluence * 0.5);
         if (opacity < 0.012) continue;
