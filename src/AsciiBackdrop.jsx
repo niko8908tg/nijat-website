@@ -123,6 +123,7 @@ export default function AsciiBackdrop() {
 
     function createField() {
       let maskPixels = null;
+      let logoBounds = null;
 
       if (logoReady) {
         const maskCanvas = document.createElement("canvas");
@@ -171,6 +172,7 @@ export default function AsciiBackdrop() {
             drawHeight,
           );
           maskPixels = maskContext.getImageData(0, 0, state.cols, state.rows).data;
+          logoBounds = { left: logoLeft, top: logoTop, width: drawWidth, height: drawHeight };
         }
       }
 
@@ -191,7 +193,29 @@ export default function AsciiBackdrop() {
       for (let row = 0; row < state.rows; row += 1) {
         for (let col = 0; col < state.cols; col += 1) {
           const index = row * state.cols + col;
-          const mask = maskAt(row, col);
+          const logoX = logoBounds ? (col - logoBounds.left) / logoBounds.width : -1;
+          const logoY = logoBounds ? (row - logoBounds.top) / logoBounds.height : -1;
+          const isJawArea =
+            (logoY > 0.58 && logoX > 0.08 && logoX < 0.3) ||
+            (logoY > 0.55 && logoX > 0.84 && logoX < 0.96) ||
+            (logoY > 0.88 && logoX > 0.28 && logoX < 0.88);
+          const isFineDetail =
+            (logoX > 0.61 && logoX < 0.78 && logoY > 0.42 && logoY < 0.61) ||
+            (logoX > 0.49 && logoX < 0.67 && logoY > 0.46 && logoY < 0.69) ||
+            (logoX > 0.62 && logoX < 0.88 && logoY > 0.61 && logoY < 0.84);
+          const rawMask = maskAt(row, col);
+          let mask = rawMask;
+
+          if (isJawArea) {
+            const neighbors = [
+              maskAt(row, col - 1),
+              maskAt(row, col + 1),
+              maskAt(row - 1, col),
+              maskAt(row + 1, col),
+            ].sort((a, b) => b - a);
+            const coreMask = neighbors[2];
+            mask = Math.min(rawMask, coreMask * 0.92 + rawMask * 0.12);
+          }
 
           if (mask < 0.06 && seededValue(index + 73) < 0.72) continue;
 
@@ -200,6 +224,7 @@ export default function AsciiBackdrop() {
             row,
             alpha: seededValue(index + 911),
             mask: Math.pow(mask, 0.72),
+            fineDetail: isFineDetail && rawMask > 0.08,
             seed: seededValue(index + 401),
             baseChar:
               CLAIMS[(index + Math.floor(seededValue(row) * CLAIMS.length)) % CLAIMS.length],
@@ -298,12 +323,13 @@ export default function AsciiBackdrop() {
         const scramble =
           rippleInfluence > cell.seed * 0.56 ||
           Math.sin(time * 0.0011 + cell.seed * 16) > 0.994;
-        const maskOpacity = cell.mask * 0.78;
+        const maskOpacity = cell.mask * (cell.fineDetail ? 0.94 : 0.78);
         const baseOpacity = (0.012 + cell.alpha * 0.04 + maskOpacity) * entrance;
         const opacity = Math.max(0, baseOpacity * (1 - dissolve) + rippleInfluence * 0.5);
         if (opacity < 0.012) continue;
 
-        context.fillStyle = `rgba(232, 232, 232, ${Math.min(0.96, opacity)})`;
+        const tone = cell.fineDetail ? 248 : 232;
+        context.fillStyle = `rgba(${tone}, ${tone}, ${tone}, ${Math.min(0.96, opacity)})`;
         context.fillText(glyphFor(cell, time, scramble), x, y);
       }
     }
