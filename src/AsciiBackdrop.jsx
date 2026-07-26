@@ -37,6 +37,7 @@ export default function AsciiBackdrop() {
       rows: 0,
       cellWidth: 9,
       cellHeight: 15,
+      rowStrings: [],
       modelCells: [],
       pointerX: -1000,
       pointerY: -1000,
@@ -47,6 +48,20 @@ export default function AsciiBackdrop() {
       raf: 0,
       visible: !document.hidden,
     };
+
+    function createRows() {
+      const charactersPerRow = Math.ceil(state.width / 6) + 4;
+      state.rowStrings = Array.from({ length: state.rows }, (_, row) => {
+        const offset = Math.floor(seededValue(row + 17) * CLAIMS.length);
+        let text = "";
+
+        for (let col = 0; col < charactersPerRow; col += 1) {
+          text += CLAIMS[(offset + col) % CLAIMS.length];
+        }
+
+        return text;
+      });
+    }
 
     function createModel() {
       const modelCanvas = document.createElement("canvas");
@@ -98,6 +113,7 @@ export default function AsciiBackdrop() {
       canvas.width = Math.round(state.width * state.dpr);
       canvas.height = Math.round(state.height * state.dpr);
       context.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+      createRows();
       createModel();
       draw(performance.now());
     }
@@ -123,6 +139,14 @@ export default function AsciiBackdrop() {
       if (!state.width || !state.height) return;
 
       context.clearRect(0, 0, state.width, state.height);
+      context.textAlign = "left";
+      context.textBaseline = "top";
+      context.font = `500 10px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
+      context.fillStyle = "rgba(222, 225, 226, 0.075)";
+
+      for (let row = 0; row < state.rows; row += 1) {
+        context.fillText(state.rowStrings[row], 0, row * state.cellHeight);
+      }
 
       const entranceAge = time - state.entranceStarted;
       const entranceRadius = easeInOut(entranceAge / 1100) * Math.hypot(state.width, state.height);
@@ -171,6 +195,13 @@ export default function AsciiBackdrop() {
         context.fillStyle = `rgba(232, 235, 235, ${Math.min(0.82, opacity)})`;
         context.fillText(glyphFor(cell, time, scramble), x, y);
       }
+
+      const markSize = Math.min(state.width * 0.32, state.height * 0.42);
+      context.textAlign = "center";
+      context.textBaseline = "middle";
+      context.font = `700 ${Math.max(42, markSize)}px "Space Grotesk", Arial, sans-serif`;
+      context.fillStyle = "rgba(244, 244, 242, 0.94)";
+      context.fillText("NM", centerX, centerY);
     }
 
     function frame(time) {
