@@ -123,7 +123,6 @@ export default function AsciiBackdrop() {
 
     function createField() {
       let maskPixels = null;
-      let logoBounds = null;
 
       if (logoReady) {
         const maskCanvas = document.createElement("canvas");
@@ -172,7 +171,6 @@ export default function AsciiBackdrop() {
             drawHeight,
           );
           maskPixels = maskContext.getImageData(0, 0, state.cols, state.rows).data;
-          logoBounds = { left: logoLeft, top: logoTop, width: drawWidth, height: drawHeight };
         }
       }
 
@@ -193,21 +191,7 @@ export default function AsciiBackdrop() {
       for (let row = 0; row < state.rows; row += 1) {
         for (let col = 0; col < state.cols; col += 1) {
           const index = row * state.cols + col;
-          const logoX = logoBounds ? (col - logoBounds.left) / logoBounds.width : -1;
-          const logoY = logoBounds ? (row - logoBounds.top) / logoBounds.height : -1;
-          const isFeatureArea =
-            logoX > 0.3 && logoX < 0.83 && logoY > 0.37 && logoY < 0.84;
-          let mask = maskAt(row, col);
-
-          if (isFeatureArea) {
-            mask = Math.max(
-              mask,
-              maskAt(row, col - 1) * 0.82,
-              maskAt(row, col + 1) * 0.82,
-              maskAt(row - 1, col) * 0.72,
-              maskAt(row + 1, col) * 0.72,
-            );
-          }
+          const mask = maskAt(row, col);
 
           if (mask < 0.06 && seededValue(index + 73) < 0.72) continue;
 
@@ -216,7 +200,6 @@ export default function AsciiBackdrop() {
             row,
             alpha: seededValue(index + 911),
             mask: Math.pow(mask, 0.72),
-            feature: isFeatureArea && mask > 0.08,
             seed: seededValue(index + 401),
             baseChar:
               CLAIMS[(index + Math.floor(seededValue(row) * CLAIMS.length)) % CLAIMS.length],
@@ -315,13 +298,12 @@ export default function AsciiBackdrop() {
         const scramble =
           rippleInfluence > cell.seed * 0.56 ||
           Math.sin(time * 0.0011 + cell.seed * 16) > 0.994;
-        const maskOpacity = cell.mask * (cell.feature ? 0.98 : 0.78);
+        const maskOpacity = cell.mask * 0.78;
         const baseOpacity = (0.012 + cell.alpha * 0.04 + maskOpacity) * entrance;
         const opacity = Math.max(0, baseOpacity * (1 - dissolve) + rippleInfluence * 0.5);
         if (opacity < 0.012) continue;
 
-        const tone = cell.feature ? 250 : 232;
-        context.fillStyle = `rgba(${tone}, ${tone}, ${tone}, ${Math.min(0.96, opacity)})`;
+        context.fillStyle = `rgba(232, 232, 232, ${Math.min(0.96, opacity)})`;
         context.fillText(glyphFor(cell, time, scramble), x, y);
       }
     }
