@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 
 const PARAMETERS = {
-  pointsNumber: 18,
-  widthFactor: 0.1,
+  pointsNumber: 8,
+  widthFactor: 0.225,
   spring: 0.4,
   friction: 0.5,
 };
