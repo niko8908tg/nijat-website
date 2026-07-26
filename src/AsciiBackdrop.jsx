@@ -200,7 +200,9 @@ export default function AsciiBackdrop() {
             (logoY > 0.55 && logoX > 0.84 && logoX < 0.96) ||
             (logoY > 0.88 && logoX > 0.28 && logoX < 0.88);
           const isMouthArea =
-            logoX > 0.41 && logoX < 0.89 && logoY > 0.61 && logoY < 0.85;
+            logoX > 0.4 && logoX < 0.9 && logoY > 0.64 && logoY < 0.86;
+          const isBetweenNoseAndMouth =
+            logoX > 0.4 && logoX < 0.8 && logoY > 0.55 && logoY < 0.65;
           const isRightEye =
             logoX > 0.61 && logoX < 0.78 && logoY > 0.42 && logoY < 0.61;
           const isNoseArea =
@@ -209,7 +211,15 @@ export default function AsciiBackdrop() {
           const rawMask = maskAt(row, col);
           let mask = rawMask;
 
-          if (isJawArea || isMouthArea) {
+          if (isMouthArea) {
+            const boundaryStrength = Math.max(
+              rawMask - maskAt(row, col - 1),
+              rawMask - maskAt(row, col + 1),
+              rawMask - maskAt(row - 1, col),
+              rawMask - maskAt(row + 1, col),
+            );
+            mask = rawMask > 0.08 && boundaryStrength > 0.08 ? 1 : 0;
+          } else if (isJawArea) {
             const neighbors = [
               maskAt(row, col - 1),
               maskAt(row, col + 1),
@@ -222,6 +232,21 @@ export default function AsciiBackdrop() {
 
           if (mask < 0.06 && seededValue(index + 73) < 0.72) continue;
 
+          const claimIndex =
+            (index + Math.floor(seededValue(row) * CLAIMS.length)) % CLAIMS.length;
+          const baseChar = CLAIMS[claimIndex];
+          let mouthChar = baseChar;
+
+          if (isMouthArea && mask > 0 && !/[A-Z0-9]/.test(mouthChar)) {
+            for (let offset = 1; offset < CLAIMS.length; offset += 1) {
+              const candidate = CLAIMS[(claimIndex + offset) % CLAIMS.length];
+              if (/[A-Z0-9]/.test(candidate)) {
+                mouthChar = candidate;
+                break;
+              }
+            }
+          }
+
           modelCells.push({
             col,
             row,
@@ -229,10 +254,12 @@ export default function AsciiBackdrop() {
             mask: Math.pow(mask, 0.72),
             fineDetail: isFineDetail && rawMask > 0.08,
             solidLine: (isJawArea || isMouthArea) && mask > 0,
+            mouthLine: isMouthArea && mask > 0,
+            mouthChar,
+            clearBetweenFeatures: isBetweenNoseAndMouth && !isMouthArea,
             solidNose: isNoseArea && rawMask > 0.08,
             seed: seededValue(index + 401),
-            baseChar:
-              CLAIMS[(index + Math.floor(seededValue(row) * CLAIMS.length)) % CLAIMS.length],
+            baseChar,
           });
         }
       }
@@ -269,6 +296,7 @@ export default function AsciiBackdrop() {
     }
 
     function glyphFor(cell, time, scramble) {
+      if (cell.mouthLine) return cell.mouthChar;
       if (!scramble) return cell.baseChar;
       const frame = Math.floor(time / 54);
       const index = Math.floor(seededValue(cell.seed * 1000 + frame) * ATLAS.length);
@@ -329,9 +357,13 @@ export default function AsciiBackdrop() {
           rippleInfluence > cell.seed * 0.56 ||
           Math.sin(time * 0.0011 + cell.seed * 16) > 0.994;
         const glyph = glyphFor(cell, time, scramble);
-        const isNormalContourGlyph =
-          cell.solidLine && (glyph === "H" || glyph === "C" || glyph === "O");
-        const isSolid = cell.solidNose || (cell.solidLine && !isNormalContourGlyph);
+        if (
+          cell.clearBetweenFeatures &&
+          (glyph === "H" || glyph === "C" || glyph === "O")
+        ) {
+          continue;
+        }
+        const isSolid = cell.solidNose || cell.solidLine;
         const maskOpacity = cell.mask * (cell.fineDetail ? 0.94 : 0.78);
         const baseOpacity = isSolid
           ? entrance
