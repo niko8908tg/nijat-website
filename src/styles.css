@@ -298,9 +298,12 @@ button { border: 0; }
 }
 .monogram img {
   display: block;
-  width: 34px;
-  height: 34px;
-  object-fit: contain;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #f2f2f2;
+  object-fit: cover;
+  object-position: 50% 47%;
 }
 .monogram span {
   line-height: 1;
