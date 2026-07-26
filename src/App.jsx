@@ -5,6 +5,7 @@ import TravelMap from "./TravelMap";
 import TrainingPage from "./TrainingPage";
 import BooksPage from "./BooksPage";
 import CurlyCursor from "./CurlyCursor";
+import PageInspector from "./PageInspector";
 import brandLogo from "./assets/nm-logo.png";
 
 const pages = [
@@ -449,6 +450,7 @@ export default function App() {
   return (
     <div className="site-shell">
       <CurlyCursor />
+      <PageInspector pageKey={activePage} />
       <aside className={menuOpen ? "sidebar is-open" : "sidebar"}>
         <button className="mobile-close" onClick={() => setMenuOpen(false)} aria-label="Close menu">Close</button>
         <div className="monogram" aria-label="Nijat Mahmud">
