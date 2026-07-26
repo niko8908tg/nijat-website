@@ -18,7 +18,7 @@ const pages = [
   ["stuff", "Stuff"],
 ];
 
-const pageIds = new Set([...pages.map(([id]) => id), "books"]);
+const pageIds = new Set([...pages.map(([id]) => id), "books", "goals"]);
 
 function getPageFromHash() {
   const page = window.location.hash.replace("#/", "");
@@ -114,7 +114,7 @@ function HomePage({ navigate }) {
         <div className="goal-list">
           {goals.map((goal) => <span key={goal}>{goal}</span>)}
         </div>
-        <a className="muted-link" href="#goals">View all goals →</a>
+        <button className="muted-link" onClick={() => navigate("goals")}>View all goals →</button>
       </section>
 
       <section className="home-block quests">
@@ -258,7 +258,32 @@ const stuffLinks = [
   ["books", "Books", "What I’ve been reading"],
   ["stuff", "Gaming", "Video games that left a mark"],
   ["tools", "Tools", "Hardware and gear I use daily"],
-  ["home", "2026 Goals", "What I want to accomplish this year"],
+  ["goals", "2026 Goals", "What I want to accomplish this year"],
+];
+
+const goals2026 = [
+  "Sub 20m 5k",
+  "Multi day hike",
+  "100kg x5 bench press",
+  "Front splits",
+  "Pancake",
+  "Master backstroke",
+  "Painless right hip",
+  "Fix click on left shoulder",
+  "Solo long day hike/run",
+  "Smooth handstand press",
+  "Master 3 knots",
+  "Pull up +45kg",
+  "Ultra race",
+  "5x Pistol squat",
+  "Surf a proper wave",
+  "Host and cook dinner for friends/family",
+  "Race abroad",
+  "100 Sleep score on Garmin",
+  "Coffee/beer with 5 internet friends",
+  "Learn to loud whistle",
+  "Memorize a poem",
+  "48h fast",
 ];
 
 const toolSections = [
@@ -363,6 +388,35 @@ function StuffPage({ navigate }) {
   );
 }
 
+function GoalsPage() {
+  return (
+    <section className="page goals-page">
+      <div className="goals-content">
+        <header className="goals-heading">
+          <h1>2026 Goals</h1>
+          <p>Trying to get strong, fast and flexible at the same time</p>
+          <p>1/22 completed</p>
+        </header>
+
+        <div className="goals-grid">
+          {goals2026.map((goal) => {
+            const completed = goal === "Pull up +45kg";
+
+            return (
+              <div
+                className={completed ? "goal-cell is-completed" : "goal-cell"}
+                key={goal}
+              >
+                <span>{goal}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function PlaceholderPage({ title }) {
   return (
     <section className="page placeholder-page">
@@ -401,7 +455,8 @@ export default function App() {
         <nav aria-label="Main navigation">
           {pages.map(([id, label]) => {
             const isActive =
-              activePage === id || (activePage === "books" && id === "stuff");
+              activePage === id ||
+              (["books", "goals"].includes(activePage) && id === "stuff");
 
             return (
               <button key={id} className={isActive ? "nav-link active" : "nav-link"} onClick={() => navigate(id)}>
@@ -422,12 +477,13 @@ export default function App() {
         {activePage === "map" && <TravelMap />}
         {activePage === "training" && <TrainingPage />}
         {activePage === "books" && <BooksPage />}
+        {activePage === "goals" && <GoalsPage />}
         {activePage === "tools" && <ToolsPage navigate={navigate} />}
         {activePage === "stuff" && <StuffPage navigate={navigate} />}
         {activePage === "posters" && <PostersPage />}
         {activePage === "projects" && <ProjectsPage />}
         {activePage === "reviews" && <ReviewsPage />}
-        {!["home", "now", "map", "training", "books", "tools", "stuff", "posters", "projects", "reviews"].includes(activePage) && (
+        {!["home", "now", "map", "training", "books", "goals", "tools", "stuff", "posters", "projects", "reviews"].includes(activePage) && (
           <PlaceholderPage title={pages.find(([id]) => id === activePage)?.[1] ?? "Page"} />
         )}
       </main>
