@@ -19,6 +19,60 @@ function easeInOut(value) {
   return t * t * (3 - 2 * t);
 }
 
+function computeContentBounds(image) {
+  const maxDim = 300;
+  const scale = Math.min(1, maxDim / Math.max(image.naturalWidth, image.naturalHeight));
+  const sampleWidth = Math.max(1, Math.round(image.naturalWidth * scale));
+  const sampleHeight = Math.max(1, Math.round(image.naturalHeight * scale));
+
+  const sampleCanvas = document.createElement("canvas");
+  sampleCanvas.width = sampleWidth;
+  sampleCanvas.height = sampleHeight;
+  const context = sampleCanvas.getContext("2d", { willReadFrequently: true });
+
+  if (!context) {
+    return { left: 0.07, top: 0.04, width: 0.9, height: 0.9 };
+  }
+
+  context.fillStyle = "#fff";
+  context.fillRect(0, 0, sampleWidth, sampleHeight);
+  context.drawImage(image, 0, 0, sampleWidth, sampleHeight);
+  const pixels = context.getImageData(0, 0, sampleWidth, sampleHeight).data;
+
+  let minX = sampleWidth;
+  let maxX = 0;
+  let minY = sampleHeight;
+  let maxY = 0;
+
+  for (let y = 0; y < sampleHeight; y += 1) {
+    for (let x = 0; x < sampleWidth; x += 1) {
+      const index = (y * sampleWidth + x) * 4;
+      const luminance = (pixels[index] + pixels[index + 1] + pixels[index + 2]) / 3;
+
+      if (luminance < 250) {
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+    }
+  }
+
+  if (maxX < minX || maxY < minY) {
+    return { left: 0.07, top: 0.04, width: 0.9, height: 0.9 };
+  }
+
+  const padX = (maxX - minX) * 0.04;
+  const padY = (maxY - minY) * 0.04;
+
+  return {
+    left: Math.max(0, (minX - padX) / sampleWidth),
+    top: Math.max(0, (minY - padY) / sampleHeight),
+    width: Math.min(1, (maxX - minX + padX * 2) / sampleWidth),
+    height: Math.min(1, (maxY - minY + padY * 2) / sampleHeight),
+  };
+}
+
 export default function AsciiBackdrop() {
   const canvasRef = useRef(null);
 
@@ -50,6 +104,7 @@ export default function AsciiBackdrop() {
       lastFrame: 0,
       raf: 0,
       visible: !document.hidden,
+      logoBoundsFraction: null,
     };
 
     function createRows() {
@@ -80,10 +135,16 @@ export default function AsciiBackdrop() {
           maskContext.fillStyle = "#fff";
           maskContext.fillRect(0, 0, state.cols, state.rows);
 
-          const sourceX = logoImage.naturalWidth * 0.07;
-          const sourceY = logoImage.naturalHeight * 0.04;
-          const sourceWidth = logoImage.naturalWidth * 0.86;
-          const sourceHeight = logoImage.naturalHeight * 0.9;
+          const bounds = state.logoBoundsFraction || {
+            left: 0.07,
+            top: 0.04,
+            width: 0.9,
+            height: 0.9,
+          };
+          const sourceX = logoImage.naturalWidth * bounds.left;
+          const sourceY = logoImage.naturalHeight * bounds.top;
+          const sourceWidth = logoImage.naturalWidth * bounds.width;
+          const sourceHeight = logoImage.naturalHeight * bounds.height;
           const imageAspect = sourceWidth / sourceHeight || 1;
           const maxPixelWidth = state.width * 0.82;
           const maxPixelHeight = state.height * 0.92;
@@ -313,6 +374,7 @@ export default function AsciiBackdrop() {
     logoImage.decoding = "async";
     logoImage.onload = () => {
       logoReady = true;
+      state.logoBoundsFraction = computeContentBounds(logoImage);
       createField();
       draw(performance.now());
     };
