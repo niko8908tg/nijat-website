@@ -275,12 +275,18 @@ export default function AsciiBackdrop() {
           const logoY = logoBounds ? (row - logoBounds.top) / logoBounds.height : -1;
           const isLeftEar =
             logoX > 0.08 && logoX < 0.3 && logoY > 0.66 && logoY < 0.9;
+          const isLeftSideHair =
+            logoX > 0.16 && logoX < 0.43 && logoY > 0.76 && logoY < 0.93;
           const isLeftJaw =
-            !isLeftEar && logoY > 0.68 && logoX > 0.14 && logoX < 0.38;
+            !isLeftEar &&
+            !isLeftSideHair &&
+            logoY > 0.68 &&
+            logoX > 0.14 &&
+            logoX < 0.38;
           const isRightJaw =
             logoY > 0.62 && logoX > 0.81 && logoX < 0.98;
           const isBottomJaw =
-            logoY > 0.84 && logoX > 0.22 && logoX < 0.93;
+            !isLeftSideHair && logoY > 0.84 && logoX > 0.22 && logoX < 0.93;
           const isJawArea = isLeftJaw || isRightJaw || isBottomJaw;
           const isNose =
             logoX > 0.57 && logoX < 0.73 && logoY > 0.48 && logoY < 0.69;
