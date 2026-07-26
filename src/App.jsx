@@ -51,6 +51,7 @@ function Icon({ name }) {
 function HomePage({ navigate }) {
   return (
     <section className="home-page page">
+      <div className="home-content">
       <div className="home-intro">
         <h1>{profile.name}</h1>
         <div className="intro-copy">
@@ -133,6 +134,7 @@ function HomePage({ navigate }) {
       <div className="home-block home-globe">
         <p className="globe-current-label">Current Location</p>
         <GlobeCard />
+      </div>
       </div>
     </section>
   );
