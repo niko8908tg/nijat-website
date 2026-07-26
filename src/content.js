@@ -10,7 +10,7 @@ export const profile = {
   secondary: "Start with my projects, or take a look at my literature notes.",
   current: "Currently building a personal archive.",
   location: "Baku, Azerbaijan",
-  email: "hello@example.com",
+  email: "nicatmahmudov1440@gmail.com",
 };
 
 export const updates = [

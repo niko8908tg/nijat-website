@@ -61,10 +61,7 @@ function HomePage({ navigate }) {
         </div>
 
         <div id="social" className="contact-row">
-          <a href="#social"><Icon name="x" /><span>X</span></a>
           <a href="#social"><Icon name="instagram" /><span>Instagram</span></a>
-          <a href="#social"><Icon name="bookmark" /><span>Substack</span></a>
-          <a href="#social"><Icon name="rss" /><span>RSS</span></a>
           <span className="separator">·</span>
           <a href={`mailto:${profile.email}`}>{profile.email}</a>
           <a href={`mailto:${profile.email}`}>Send a message</a>
