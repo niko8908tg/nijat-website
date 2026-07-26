@@ -80,6 +80,48 @@ function createBooksDocument() {
             return;
           }
 
+          const yearSections = [...pageRoot.querySelectorAll("section")].filter(
+            (section) => {
+              const year = Number(section.querySelector("h2")?.textContent.trim().slice(0, 4));
+              return Number.isInteger(year) && year >= 1900 && year <= 2026;
+            }
+          );
+          const currentYearSection = yearSections.find((section) =>
+            section.querySelector("h2")?.textContent.trim().startsWith("2026")
+          );
+          const currentlyReadingSection = [...pageRoot.querySelectorAll("section")].find(
+            (section) =>
+              section.querySelector("h2")?.textContent.trim().toUpperCase() ===
+              "CURRENTLY READING"
+          );
+          const remainingBookCount =
+            (currentYearSection?.querySelectorAll("a.group").length ?? 0) +
+            (currentlyReadingSection?.querySelectorAll("a.group").length ?? 0);
+
+          yearSections.forEach((section) => {
+            const year = Number(section.querySelector("h2")?.textContent.trim().slice(0, 4));
+            if (year <= 2025) section.remove();
+          });
+
+          const bookCountLine = [...pageRoot.querySelectorAll("p")].find(
+            (paragraph) =>
+              paragraph.textContent.includes("books") &&
+              paragraph.textContent.includes("Goodreads")
+          );
+          const bookCountBreak = bookCountLine?.querySelector("br");
+          const goodreadsLink = bookCountLine?.querySelector('a[href*="goodreads.com"]');
+          if (bookCountBreak && goodreadsLink) {
+            let node = bookCountBreak.nextSibling;
+            while (node && node !== goodreadsLink) {
+              const nextNode = node.nextSibling;
+              node.remove();
+              node = nextNode;
+            }
+            bookCountBreak.after(
+              document.createTextNode(remainingBookCount + " books · via ")
+            );
+          }
+
           document.documentElement.classList.add("dark");
           document.body.replaceChildren(pageRoot);
 
