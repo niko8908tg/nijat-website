@@ -200,9 +200,12 @@ export default function AsciiBackdrop() {
             (logoY > 0.55 && logoX > 0.84 && logoX < 0.96) ||
             (logoY > 0.88 && logoX > 0.28 && logoX < 0.88);
           const isMouthArea =
-            logoX > 0.4 && logoX < 0.9 && logoY > 0.64 && logoY < 0.86;
-          const isBetweenNoseAndMouth =
-            logoX > 0.4 && logoX < 0.8 && logoY > 0.55 && logoY < 0.65;
+            (logoX > 0.4 && logoX < 0.9 && logoY > 0.64 && logoY < 0.86) ||
+            (logoX > 0.7 && logoX < 0.93 && logoY > 0.6 && logoY < 0.86);
+          const isUpperFacialHair =
+            logoX > 0.42 && logoX < 0.69 && logoY > 0.54 && logoY < 0.635;
+          const isLowerFacialHair =
+            logoX > 0.61 && logoX < 0.9 && logoY > 0.87 && logoY < 0.97;
           const isRightEye =
             logoX > 0.61 && logoX < 0.78 && logoY > 0.42 && logoY < 0.61;
           const isNoseArea =
@@ -210,6 +213,8 @@ export default function AsciiBackdrop() {
           const isFineDetail = isRightEye || isNoseArea;
           const rawMask = maskAt(row, col);
           let mask = rawMask;
+
+          if (isUpperFacialHair || isLowerFacialHair) continue;
 
           if (isMouthArea) {
             const boundaryStrength = Math.max(
@@ -253,13 +258,8 @@ export default function AsciiBackdrop() {
             alpha: seededValue(index + 911),
             mask: Math.pow(mask, 0.72),
             fineDetail: isFineDetail && rawMask > 0.08,
-            solidLine: (isJawArea || isMouthArea) && mask > 0,
-            mouthLine: isMouthArea && mask > 0,
-            mouthChar,
-            clearBetweenFeatures: isBetweenNoseAndMouth && !isMouthArea,
-            solidNose: isNoseArea && rawMask > 0.08,
             seed: seededValue(index + 401),
-            baseChar,
+            baseChar: isMouthArea && mask > 0 ? mouthChar : baseChar,
           });
         }
       }
@@ -296,7 +296,6 @@ export default function AsciiBackdrop() {
     }
 
     function glyphFor(cell, time, scramble) {
-      if (cell.mouthLine) return cell.mouthChar;
       if (!scramble) return cell.baseChar;
       const frame = Math.floor(time / 54);
       const index = Math.floor(seededValue(cell.seed * 1000 + frame) * ATLAS.length);
@@ -357,23 +356,12 @@ export default function AsciiBackdrop() {
           rippleInfluence > cell.seed * 0.56 ||
           Math.sin(time * 0.0011 + cell.seed * 16) > 0.994;
         const glyph = glyphFor(cell, time, scramble);
-        if (
-          cell.clearBetweenFeatures &&
-          (glyph === "H" || glyph === "C" || glyph === "O")
-        ) {
-          continue;
-        }
-        const isSolid = cell.solidNose || cell.solidLine;
         const maskOpacity = cell.mask * (cell.fineDetail ? 0.94 : 0.78);
-        const baseOpacity = isSolid
-          ? entrance
-          : (0.012 + cell.alpha * 0.04 + maskOpacity) * entrance;
+        const baseOpacity = (0.012 + cell.alpha * 0.04 + maskOpacity) * entrance;
         const opacity = Math.max(0, baseOpacity * (1 - dissolve) + rippleInfluence * 0.5);
         if (opacity < 0.012) continue;
 
-        const tone = isSolid ? 255 : cell.fineDetail ? 248 : 232;
-        const drawOpacity = isSolid ? Math.min(1, opacity) : Math.min(0.96, opacity);
-        context.fillStyle = `rgba(${tone}, ${tone}, ${tone}, ${drawOpacity})`;
+        context.fillStyle = `rgba(232, 232, 232, ${Math.min(0.96, opacity)})`;
         context.fillText(glyph, x, y);
       }
     }
