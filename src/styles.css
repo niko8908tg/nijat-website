@@ -52,11 +52,11 @@ button { border: 0; }
 .ascii-backdrop {
   position: absolute;
   top: 0;
-  right: calc(100% - (100vw - 240px));
+  right: calc(100% - (100vw - 240px) - 10px);
   z-index: -1;
   display: block;
   width: calc((100vw - 240px) * .56);
-  height: 100vh;
+  height: clamp(360px, 8vh, 8px);
   pointer-events: none;
 }
 
