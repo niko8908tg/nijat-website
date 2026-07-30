@@ -314,12 +314,13 @@ button { border: 0; }
 }
 .monogram img {
   display: block;
-  width: 42px;
-  height: 42px;
-  border-radius: 90%;
-  background: #f2f2f2;
-  object-fit: cover;
-  object-position: 50% 5%;
+  width: auto;
+  max-width: 64px;
+  height: auto;
+  max-height: 44px;
+  border-radius: 0;
+  background: transparent;
+  object-fit: contain;
 }
 .sidebar nav { display: flex !important; flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; padding: 0 !important; margin: 0 !important; }
 .nav-link {
