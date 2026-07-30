@@ -5,3 +5,15 @@ dist
 .env*
 !.env.example
 *.log
+.DS_Store
+
+# Ignore personal & scrape files in root
+*.pdf
+*Pedro Araújo*
+ChatGPT Image*
+whitenıcı.png
+zzz.jpg
+21192738.jpg
+2558730.jpg
+692047.jpg
+blacknici.png
