@@ -7,7 +7,7 @@ import BooksPage from "./BooksPage";
 import CurlyCursor from "./CurlyCursor";
 import PageInspector from "./PageInspector";
 import AsciiBackdrop from "./AsciiBackdrop";
-import brandLogo from "./assets/blacknici-mask.png";
+import brandLogo from "./assets/nm-logo.png";
 
 const pages = [
   ["home", "Home"],
