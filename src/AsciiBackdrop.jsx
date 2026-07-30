@@ -150,8 +150,8 @@ export default function AsciiBackdrop() {
           const sourceWidth = logoImage.naturalWidth * bounds.width;
           const sourceHeight = logoImage.naturalHeight * bounds.height;
           const imageAspect = sourceWidth / sourceHeight || 1;
-          const maxPixelWidth = state.width * 0.82;
-          const maxPixelHeight = state.height * 0.92;
+          const maxPixelWidth = state.width * 0.656;
+          const maxPixelHeight = state.height * 0.736;
           let drawPixelWidth = maxPixelWidth;
           let drawPixelHeight = drawPixelWidth / imageAspect;
 
@@ -433,7 +433,7 @@ export default function AsciiBackdrop() {
           rippleInfluence > cell.seed * 0.56 ||
           Math.sin(time * 0.0011 + cell.seed * 16) > 0.994;
         const maskOpacity =
-          cell.mask * (cell.emphasizedDetail ? 0.98 : cell.leftEarDetail ? 0.88 : 0.78);
+          cell.mask * (cell.emphasizedDetail ? 0.99 : cell.leftEarDetail ? 0.995 : 0.98);
         const baseOpacity = (0.012 + cell.alpha * 0.04 + maskOpacity) * entrance;
         const opacity = Math.max(0, baseOpacity * (1 - dissolve) + rippleInfluence * 0.5);
         if (opacity < 0.012) continue;

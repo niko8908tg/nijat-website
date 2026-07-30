@@ -13,6 +13,14 @@ const covers = Object.fromEntries(
 
 const books = [
   {
+    id: "826396",
+    title: "Principles of Neural Science",
+    author: "Eric R. Kandel",
+    rating: 4,
+    status: "currently-reading",
+    reviewId: "8806237421",
+  },
+  {
     id: "39286958",
     title: "Measure What Matters",
     author: "John Doerr",
@@ -28,6 +36,31 @@ const books = [
     rating: 4,
     status: "currently-reading",
     reviewId: "8802275011",
+  },
+  {
+    id: "21192738",
+    title:
+      "Neuronal Dynamics: From Single Neurons to Networks and Models of Cognition",
+    author: "Wulfram Gerstner",
+    rating: 4,
+    year: 2026,
+    reviewId: "8806239102",
+  },
+  {
+    id: "2558730",
+    title: "Digital Design and Computer Architecture",
+    author: "David Money Harris",
+    rating: 5,
+    year: 2026,
+    reviewId: "8806238801",
+  },
+  {
+    id: "692047",
+    title: "Writing Testbenches using SystemVerilog",
+    author: "Janick Bergeron",
+    rating: 3,
+    year: 2026,
+    reviewId: "8806238615",
   },
   {
     id: "27793819",

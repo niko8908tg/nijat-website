@@ -1,9 +1,9 @@
 import { useEffect, useRef } from "react";
 
 const PARAMETERS = {
-  pointsNumber: 8,
-  widthFactor: 0.225,
-  spring: 0.4,
+  pointsNumber: 6,
+  widthFactor: 0.25,
+  spring: 0.45,
   friction: 0.5,
 };
 
